@@ -457,7 +457,7 @@
       "id": "W11",
       "t": 2,
       "c": "Plumbing",
-      "i": "Inspect the indirect water heater (Therma-Flow TFI) and record its age",
+      "i": "Inspect the 115-gallon indirect water heater (Therma-Flow TF 115, made May 2002) for leaks, corrosion and relief valve condition",
       "s": "Water heater check",
       "e": 12,
       "int": "Annual",
@@ -466,8 +466,9 @@
       "w": "DIY",
       "p": false,
       "v": "",
-      "st": "To confirm",
-      "n": "Stainless indirect tank. Age unknown; read the label. Check the relief valve and connections."
+      "st": "Active",
+      "l": "",
+      "n": "Therma-Flow TF 115, 115-gallon stainless indirect tank, manufactured May 2002 (about 24 years old). Check the T&P relief valve and discharge pipe, connections, and the floor underneath for moisture. Pair with the leak sensor (W08)."
     },
     {
       "id": "W12",
@@ -516,6 +517,22 @@
       "v": "",
       "st": "To confirm",
       "n": "3 Bosch heat pumps (basement) and 2 AC units (attic). Record filter sizes."
+    },
+    {
+      "id": "W15",
+      "t": 2,
+      "c": "Plumbing",
+      "i": "Have the plumber assess the 115-gallon Therma-Flow TF 115 (2002) and set a replacement plan",
+      "s": "Water heater assessment",
+      "e": 0,
+      "int": "Once",
+      "se": "Winter",
+      "d": "2026-12-15",
+      "w": "Pro",
+      "p": true,
+      "v": "Plumber; JJ Donovan & Sons",
+      "st": "Not started",
+      "n": "Unit is about 24 years old. Stainless tanks often outlast steel, but age raises failure risk. Ask for a condition check (relief valve, heat exchanger coil, tank seams), the warranty status and the replacement lead time, so a failure does not force a rushed swap. A 115-gallon tank is large and may be hard to get into and out of the basement, so ask about access and a like-for-like replacement."
     },
     {
       "id": "A01",

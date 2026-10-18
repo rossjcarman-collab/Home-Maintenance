@@ -187,6 +187,16 @@ details.add summary { cursor: pointer; font-family: var(--f-display); font-weigh
 .foot { margin-top: 14px; font-size: 12px; color: var(--ink-2); font-family: var(--f-mono); }
 .tools { margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .tools .hint { font-size: 12px; color: var(--ink-2); flex: 1 1 260px; margin: 0; }
+.gsync { margin-top: 18px; padding: 12px 14px; background: var(--sheet); border: 1px solid var(--line); border-top: 3px double var(--ink); border-radius: 0 0 3px 3px; }
+.gsync h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; letter-spacing: .06em; text-transform: uppercase; margin: 0 0 8px; }
+.gs-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+.gs-msg { font-size: 12.5px; color: var(--ink-2); flex: 1 1 280px; margin: 0; }
+.gs-msg.bad { color: var(--late); }
+.gsync details { margin-top: 10px; font-size: 13px; }
+.gsync summary { cursor: pointer; font-family: var(--f-display); font-weight: 600; letter-spacing: .07em; text-transform: uppercase; font-size: 14px; }
+.gsync label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--ink-2); margin: 8px 0; }
+.gsync input[type="text"] { background: var(--paper); border: 1px solid var(--line); border-radius: 3px; padding: 6px 9px; min-width: 0; font-family: var(--f-mono); font-size: 12px; color: var(--ink); }
+.gsync .help { color: var(--ink-2); margin: 6px 0 0; max-width: 70ch; }
 
 @media (max-width: 959px) {
   .layout { grid-template-columns: minmax(0, 1fr); }
@@ -261,6 +271,24 @@ details.add summary { cursor: pointer; font-family: var(--f-display); font-weigh
       </details>
     </aside>
   </div>
+  <section class="gsync" aria-label="Google sync">
+    <h2>Google Calendar and Tasks</h2>
+    <div class="gs-row">
+      <button type="button" class="btn primary" id="gSync">Sync with Google</button>
+      <button type="button" class="btn" id="gReadd" hidden>Re-add items deleted in Google</button>
+      <p class="gs-msg" id="gMsg" role="status" aria-live="polite"></p>
+    </div>
+    <details id="gSetup">
+      <summary>Google setup</summary>
+      <label for="gClient">OAuth client ID
+        <input type="text" id="gClient" autocomplete="off" spellcheck="false" placeholder="1234567890-abc123.apps.googleusercontent.com">
+      </label>
+      <button type="button" class="btn" id="gSave">Save client ID</button>
+      <p class="help">One-time setup in Google Cloud, step by step in <code>docs/GOOGLE-SETUP.md</code>. The client ID is not a secret. Sync creates a calendar and a task list, both named Home Maintenance, and never touches your other calendars.</p>
+      <p class="help">Two-way: completing a task in Google Tasks marks it done here, and moving an event or task changes the due date here. If you changed the same item here since the last sync, this app wins. Sync runs when you press the button.</p>
+    </details>
+  </section>
+
   <div class="tools">
     <button type="button" class="btn" id="exportIcs">Export to Google Calendar (.ics)</button>
     <button type="button" class="btn" id="exportJson">Back up progress</button>
@@ -271,6 +299,7 @@ details.add summary { cursor: pointer; font-family: var(--f-display); font-weigh
   <p class="foot" id="status" role="status">Loading saved progress</p>
 </div>
 
+<script src="sync.js"></script>
 <script>
 (function () {
   'use strict';
@@ -309,10 +338,11 @@ details.add summary { cursor: pointer; font-family: var(--f-display); font-weigh
     { id:'W08', t:2, c:'Plumbing', i:'Install water leak sensors: boiler and water heater area, basement low point, well tank, attic AC pans', s:'Install leak sensors', e:0, int:'Once', se:'Fall', d:'2026-11-15', w:'DIY', p:false, v:'', st:'Not started', n:'Choose sensors that alert phones.' },
     { id:'W09', t:2, c:'HVAC', i:'Clear attic AC condensate drains and test float switches', s:'Attic AC drains', e:12, int:'Annual', se:'Spring', d:'2027-04-30', w:'DIY or pro', p:false, v:'', st:'Not started', n:'Attic units sit above finished space. Check secondary pans too.' },
     { id:'W10', t:2, c:'Plumbing', i:'Well pump and pressure tank service', s:'Well pump + tank service', e:12, int:'Annual', se:'Fall', d:'2026-11-20', w:'Pro', p:true, v:'Well contractor', st:'To confirm', n:'Both are in the basement. Service history unknown, so the date is a placeholder until a contractor is booked.' },
-    { id:'W11', t:2, c:'Plumbing', i:'Inspect the indirect water heater (Therma-Flow TFI) and record its age', s:'Water heater check', e:12, int:'Annual', se:'Fall', d:'2026-11-15', w:'DIY', p:false, v:'', st:'To confirm', n:'Stainless indirect tank. Age unknown; read the label. Check the relief valve and connections.' },
+    { id:'W11', t:2, c:'Plumbing', i:'Inspect the 115-gallon indirect water heater (Therma-Flow TF 115, made May 2002) for leaks, corrosion and relief valve condition', s:'Water heater check', e:12, int:'Annual', se:'Fall', d:'2026-11-15', w:'DIY', p:false, v:'', st:'Active', l:'', n:'Therma-Flow TF 115, 115-gallon stainless indirect tank, manufactured May 2002 (about 24 years old). Check the T&P relief valve and discharge pipe, connections, and the floor underneath for moisture. Pair with the leak sensor (W08).' },
     { id:'W12', t:2, c:'Plumbing', i:'Exercise the main water shutoff', s:'Exercise main shutoff', e:12, int:'Annual', se:'Spring', d:'2027-04-10', w:'DIY', p:false, v:'', st:'Not started', n:'Main shutoff is in the basement, facing the street. Tag it.' },
     { id:'W13', t:2, c:'Foundation', i:'Check the fieldstone foundation and the 2001 addition joint after heavy rain', s:'Foundation check', e:3, int:'Quarterly and after heavy rain', se:'Year-round', d:'2026-12-15', w:'DIY', p:false, v:'', st:'Seasonal', n:'Light moisture in heavy rain is rare. No sump or dehumidifier. Look at the joint where the poured 2001 foundation meets the fieldstone.' },
     { id:'W14', t:2, c:'HVAC', i:'Replace filters on all air handlers', s:'Replace HVAC filters', e:3, int:'Quarterly', se:'Year-round', d:'2026-11-01', w:'DIY', p:false, v:'', st:'To confirm', n:'3 Bosch heat pumps (basement) and 2 AC units (attic). Record filter sizes.' },
+    { id:'W15', t:2, c:'Plumbing', i:'Have the plumber assess the 115-gallon Therma-Flow TF 115 (2002) and set a replacement plan', s:'Water heater assessment', e:0, int:'Once', se:'Winter', d:'2026-12-15', w:'Pro', p:true, v:'Plumber; JJ Donovan & Sons', st:'Not started', n:'Unit is about 24 years old. Stainless tanks often outlast steel, but age raises failure risk. Ask for a condition check (relief valve, heat exchanger coil, tank seams), the warranty status and the replacement lead time, so a failure does not force a rushed swap. A 115-gallon tank is large and may be hard to get into and out of the basement, so ask about access and a like-for-like replacement.' },
     { id:'A01', t:3, c:'Records', i:'Locate roof warranty paperwork (shingle manufacturer and Duval Roofing) and register the shingles', s:'Roof warranty + register', e:0, int:'Once', se:'Fall', d:'2026-11-15', w:'DIY', p:false, v:'Duval Roofing', st:'Not started', n:'Ask Duval and RPD to confirm the shingle warranty allows an unvented, foamed attic.' },
     { id:'A02', t:3, c:'Records', i:'File Andersen window warranty and registration (2025)', s:'Andersen warranty', e:0, int:'Once', se:'Fall', d:'2026-11-30', w:'DIY', p:false, v:'Andersen', st:'Not started', n:'About 35 windows. No storm windows.' },
     { id:'A03', t:3, c:'Records', i:'File spray foam spec and warranty', s:'Spray foam warranty', e:0, int:'Once', se:'Fall', d:'2026-11-15', w:'DIY', p:false, v:'RPD Insulation LLC', st:'Not started', n:'Open and closed cell foam on the roof deck.' },
@@ -456,18 +486,19 @@ details.add summary { cursor: pointer; font-family: var(--f-display); font-weigh
     putTask(id);
     render();
   }
-  function markDone(id) {
+  function markDone(id, on) {
+    on = on || TODAY;
     var t = find(id); if (!t || t.done) return;
     var st = cur(id);
-    if (t.asn) { st.hist.push({ on: TODAY }); }
+    if (t.asn) { st.hist.push({ on: on }); }
     else if (t.e > 0) {
       var anchor = t.date || TODAY;
       var next = addMonths(anchor, t.e), n = 0;
       while (next <= TODAY && n < 400) { next = addMonths(next, t.e); n++; }
-      st.hist.push({ on: TODAY, prev: t.date || null });
+      st.hist.push({ on: on, prev: t.date || null });
       st.date = next;
     } else {
-      st.hist.push({ on: TODAY, prev: t.date || null });
+      st.hist.push({ on: on, prev: t.date || null });
       st.done = true;
     }
     commit(id, st);
@@ -729,7 +760,7 @@ details.add summary { cursor: pointer; font-family: var(--f-display); font-weigh
   }
   function exportJson() {
     download('home-maintenance-backup-' + TODAY + '.json', 'application/json',
-      JSON.stringify({ app: 'home-maintenance', version: 1, saved: TODAY, tasks: S, custom: CUSTOM }, null, 2));
+      JSON.stringify({ app: 'home-maintenance', version: 1, saved: TODAY, tasks: S, custom: CUSTOM, sync: { calId: SYNC.calId, listId: SYNC.listId, map: SYNC.map } }, null, 2));
   }
   function importJson(file) {
     var r = new FileReader();
@@ -739,6 +770,7 @@ details.add summary { cursor: pointer; font-family: var(--f-display); font-weigh
         if (!o || o.app !== 'home-maintenance' || typeof o.tasks !== 'object') throw new Error('bad file');
         if (!window.confirm('Replace the progress in this browser with this backup?')) return;
         S = o.tasks || {}; CUSTOM = o.custom || {};
+        if (o.sync) { SYNC.calId = o.sync.calId; SYNC.listId = o.sync.listId; SYNC.map = o.sync.map || {}; saveSync(); }
         saveLocal(); render();
       } catch (e) { window.alert('That file is not a Home Maintenance backup.'); }
     };
@@ -791,6 +823,71 @@ details.add summary { cursor: pointer; font-family: var(--f-display); font-weigh
     if (e.target.files[0]) importJson(e.target.files[0]);
     e.target.value = '';
   });
+
+  /* ---------- Google sync ---------- */
+  var SYNC = (function () { try { return JSON.parse(localStorage.getItem('hm.sync.v1')) || {}; } catch (e) { return {}; } })();
+  function saveSync() { try { localStorage.setItem('hm.sync.v1', JSON.stringify(SYNC)); } catch (e) {} }
+  var gEngine = HMSync.create({
+    getState: function () { return SYNC; },
+    save: saveSync,
+    tasks: tasks,
+    find: find,
+    tierName: function (t) { return TIERS[t]; },
+    applyDone: markDone,
+    applyDate: resched,
+    getToken: HMSync.tokenProvider(function () { return SYNC.clientId; }),
+    timeZone: (function () { try { return Intl.DateTimeFormat().resolvedOptions().timeZone; } catch (e) { return undefined; } })()
+  });
+  var gMsg = document.getElementById('gMsg');
+  function gSay(text, bad) { gMsg.textContent = text; gMsg.className = 'gs-msg' + (bad ? ' bad' : ''); }
+  function gGoneCount() {
+    var m = SYNC.map || {}, n = 0;
+    Object.keys(m).forEach(function (k) { if (m[k].evGone || m[k].tkGone) n++; });
+    return n;
+  }
+  function gIdle() {
+    document.getElementById('gReadd').hidden = gGoneCount() === 0;
+    if (!SYNC.clientId) { gSay('Not connected. Add your Google client ID under Google setup.'); return; }
+    gSay(SYNC.last ? 'Last synced ' + new Date(SYNC.last).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + '.' : 'Ready to sync.');
+  }
+  function gSummary(r) {
+    var bits = [r.created + ' added', r.updated + ' updated', r.removed + ' removed'];
+    var pulled = [];
+    if (r.pulledDone) pulled.push(r.pulledDone + ' marked done');
+    if (r.pulledDates) pulled.push(r.pulledDates + ' rescheduled');
+    var out = 'Synced. To Google: ' + bits.join(', ') + '.';
+    if (pulled.length) out += ' From Google: ' + pulled.join(', ') + '.';
+    if (r.gone) out += ' ' + r.gone + ' deleted in Google and not re-added.';
+    if (r.errors.length) out += ' ' + r.errors.length + ' failed (' + r.errors[0] + ').';
+    return out;
+  }
+  async function gRun(fn) {
+    var btn = document.getElementById('gSync');
+    btn.disabled = true; gSay('Syncing...');
+    try { var r = await fn(); document.getElementById('gReadd').hidden = gGoneCount() === 0; gSay(gSummary(r), r.errors.length > 0); }
+    catch (e) {
+      gSay('Sync failed: ' + (e.status === 401 ? 'Google sign-in expired. Press Sync again.' : e.message), true);
+    }
+    btn.disabled = false;
+  }
+  document.getElementById('gClient').value = SYNC.clientId || '';
+  document.getElementById('gSave').addEventListener('click', function () {
+    var v = document.getElementById('gClient').value.trim();
+    if (v && !/\.apps\.googleusercontent\.com$/.test(v)) { gSay('That does not look like a Google client ID. It ends in .apps.googleusercontent.com.', true); return; }
+    SYNC.clientId = v || undefined; saveSync();
+    if (v) HMSync.preload();
+    gIdle();
+  });
+  document.getElementById('gSync').addEventListener('click', function () {
+    if (!SYNC.clientId) { document.getElementById('gSetup').open = true; gSay('Add your Google client ID first.', true); return; }
+    gRun(function () { return gEngine.sync(); });
+  });
+  document.getElementById('gReadd').addEventListener('click', function () {
+    gEngine.readd();
+    gRun(function () { return gEngine.sync(); });
+  });
+  if (SYNC.clientId) HMSync.preload();
+  gIdle();
 
   /* ---------- boot ---------- */
   setStatus('boot');
