@@ -586,7 +586,7 @@
       "id": "A04",
       "t": 3,
       "c": "Records",
-      "i": "Register HVAC equipment: Bosch heat pumps (2024) and Mitsubishi AC (2026)",
+      "i": "Register HVAC equipment: Bosch heat pumps and BVA20 air handlers (2022) and Mitsubishi AC (2026)",
       "s": "Register HVAC equipment",
       "e": 0,
       "int": "Once",
@@ -596,7 +596,7 @@
       "p": false,
       "v": "",
       "st": "Not started",
-      "n": "Record model and serial numbers."
+      "n": "Record model and serial numbers. The 2022 install is past the usual short registration window, so ask the installer about warranty status."
     },
     {
       "id": "A05",
@@ -644,7 +644,7 @@
       "p": true,
       "v": "HVAC contractor",
       "st": "Not started",
-      "n": "Installed 2024. Service vendor to confirm."
+      "n": "Installed 2022, paired with the 3 BVA20 ECM air handlers. Service vendor to confirm."
     },
     {
       "id": "A08",
@@ -869,6 +869,54 @@
       "v": "",
       "st": "Not started",
       "n": ""
+    },
+    {
+      "id": "W16",
+      "t": 2,
+      "c": "Plumbing",
+      "i": "Replace the two whole-house water filter cartridges on the main line",
+      "s": "Replace main water filters",
+      "e": 6,
+      "int": "Every 6 months, to confirm",
+      "se": "Year-round",
+      "d": "2026-12-01",
+      "w": "DIY",
+      "p": false,
+      "v": "",
+      "st": "To confirm",
+      "n": "Two filters right off the main. Cartridge type and the maker's change interval are unknown; confirm them and adjust the interval. Write the change date on the housing."
+    },
+    {
+      "id": "C06",
+      "t": 3,
+      "c": "Equipment",
+      "i": "Snowblower pre-season check: fuel or battery, shear pins, belts, spark plug and a test start",
+      "s": "Snowblower pre-season check",
+      "e": 12,
+      "int": "Annual",
+      "se": "Fall",
+      "d": "2026-11-08",
+      "w": "DIY",
+      "p": false,
+      "v": "",
+      "st": "To confirm",
+      "n": "Make, model and fuel type to confirm. Do this before the first forecast storm."
+    },
+    {
+      "id": "C07",
+      "t": 3,
+      "c": "Equipment",
+      "i": "Mower fall service: oil, blade, air filter and fuel treatment or battery storage",
+      "s": "Mower fall service",
+      "e": 12,
+      "int": "Annual",
+      "se": "Fall",
+      "d": "2026-11-08",
+      "w": "DIY",
+      "p": false,
+      "v": "",
+      "st": "To confirm",
+      "n": "Make, model and fuel type to confirm. Winterize before storing."
     }
   ]
 }

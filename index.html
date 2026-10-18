@@ -68,6 +68,7 @@
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 body {
   background: var(--paper);
   color: var(--ink);
@@ -198,6 +199,70 @@ details.add summary { cursor: pointer; font-family: var(--f-display); font-weigh
 .gsync input[type="text"] { background: var(--paper); border: 1px solid var(--line); border-radius: 3px; padding: 6px 9px; min-width: 0; font-family: var(--f-mono); font-size: 12px; color: var(--ink); }
 .gsync .help { color: var(--ink-2); margin: 6px 0 0; max-width: 70ch; }
 
+/* Tabs and home inventory */
+.tabs { display: flex; gap: 4px; margin: -4px 0 16px; border-bottom: 1px solid var(--line); }
+.tabs button { background: none; border: 0; border-bottom: 3px solid transparent; margin-bottom: -1px; padding: 8px 14px 7px; font-family: var(--f-display); font-weight: 600; font-size: 17px; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-2); }
+.tabs button:hover { color: var(--ink); }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.ibar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 20px; margin-bottom: 4px; }
+.ikpis { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 13px; color: var(--ink-2); }
+.ik b { font-family: var(--f-mono); font-weight: 500; color: var(--ink); font-size: 15px; margin-right: 4px; }
+.ik.bad b { color: var(--late); }
+.ik.warn b { color: var(--t3); }
+.ifilters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.ifilters input[type="search"], .ifilters select { background: var(--sheet); border: 1px solid var(--line); border-radius: 3px; padding: 6px 9px; min-width: 0; }
+.ifilters input[type="search"] { width: min(320px, 100%); }
+.ifilters label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
+.icat h2, .iabsent h2 { font-family: var(--f-display); font-weight: 600; font-size: 20px; letter-spacing: .05em; text-transform: uppercase; margin: 22px 0 8px; padding-bottom: 4px; border-bottom: 1px solid var(--line); }
+.icat h2 span { font-family: var(--f-mono); font-size: 12px; font-weight: 400; letter-spacing: 0; color: var(--ink-2); margin-left: 6px; }
+.igrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); gap: 10px; align-items: start; }
+.inv { background: var(--sheet); border: 1px solid var(--line); border-radius: 3px; min-width: 0; }
+.inv.open { grid-column: 1 / -1; border-color: var(--accent); }
+.inv-sum { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "n g" "s s" "b b"; gap: 2px 14px; width: 100%; text-align: left; background: none; border: 0; padding: 10px 12px; }
+.iname { grid-area: n; font-weight: 600; line-height: 1.3; }
+.iqty { font-family: var(--f-mono); font-weight: 400; font-size: 12px; color: var(--ink-2); }
+.isub { grid-area: s; font-size: 12.5px; color: var(--ink-2); text-wrap: pretty; }
+.igauge { grid-area: g; align-self: center; justify-self: end; }
+.gauge { display: inline-flex; align-items: center; gap: 6px; font-family: var(--f-mono); font-size: 11.5px; color: var(--ink-2); white-space: nowrap; }
+.gbar { width: 64px; height: 6px; background: var(--line-2); border-radius: 3px; overflow: hidden; display: inline-block; }
+.gbar i { display: block; height: 100%; background: var(--accent); }
+.gauge.mid .gbar i { background: var(--t4); }
+.gauge.plan .gbar i { background: var(--t3); }
+.gauge.past .gbar i { background: var(--late); }
+.gauge.past .gtxt { color: var(--late); }
+.ibadges { grid-area: b; display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.ibadge { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase; border: 1px solid currentColor; border-radius: 2px; padding: 0 4px; line-height: 1.5; white-space: nowrap; }
+.ibadge.past { color: var(--late); }
+.ibadge.plan { color: var(--t3); }
+.ibadge.confirm { color: var(--t2); }
+.ibadge.miss { color: var(--ink-2); }
+.inv-det { padding: 2px 14px 14px; border-top: 1px solid var(--line-2); display: flex; flex-direction: column; gap: 12px; }
+.iflag { margin: 10px 0 0; font-size: 13px; padding: 8px 10px; border-left: 3px solid var(--t2); background: var(--paper); display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.iflag.ok { border-left-color: var(--accent); color: var(--ink-2); }
+.iform { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px 12px; }
+.iform .full { grid-column: 1 / -1; }
+.iform label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--ink-2); }
+.iform input, .iform select, .iform textarea { background: var(--paper); border: 1px solid var(--line); border-radius: 3px; padding: 5px 8px; min-width: 0; color: var(--ink); }
+.iform textarea { resize: vertical; line-height: 1.4; }
+.ilinks { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.ilabel { font-family: var(--f-display); font-weight: 600; font-size: 12px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-2); margin-right: 4px; }
+.taskchip { background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; font-size: 12px; }
+.taskchip b { font-family: var(--f-mono); font-weight: 500; }
+.taskchip.late { border-color: var(--late); }
+.taskchip:hover { border-color: var(--accent); }
+.iactions { display: flex; justify-content: flex-end; }
+.iadd { margin-top: 22px; border-top: 1px solid var(--line); padding-top: 10px; }
+.iadd summary { cursor: pointer; font-family: var(--f-display); font-weight: 600; font-size: 15px; letter-spacing: .07em; text-transform: uppercase; }
+.iadd form { margin-top: 10px; max-width: 640px; }
+.iabsent ul { margin: 0; padding-left: 18px; font-size: 13px; color: var(--ink-2); columns: 2 280px; }
+.ihint { font-size: 12px; color: var(--ink-2); max-width: 70ch; }
+.linkbtn { background: none; border: 0; padding: 0; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; font-size: 12px; }
+@media (max-width: 520px) {
+  .inv-sum { grid-template-columns: minmax(0, 1fr); grid-template-areas: "n" "s" "g" "b"; }
+  .igauge { justify-self: start; margin-top: 4px; }
+  .tabs button { padding: 8px 10px 7px; font-size: 15px; }
+}
+
 @media (max-width: 959px) {
   .layout { grid-template-columns: minmax(0, 1fr); }
   .side { position: static; max-height: none; }
@@ -229,6 +294,12 @@ details.add summary { cursor: pointer; font-family: var(--f-display); font-weigh
     <div class="kpis" id="kpis" aria-live="polite"></div>
   </header>
 
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button type="button" role="tab" id="tabCal" aria-selected="true" aria-controls="viewCal">Calendar and tasks</button>
+    <button type="button" role="tab" id="tabInv" aria-selected="false" aria-controls="viewInv">Home inventory</button>
+  </nav>
+
+  <div id="viewCal" role="tabpanel" aria-labelledby="tabCal">
   <div class="layout">
     <section class="cal" aria-label="Calendar">
       <div class="cal-bar">
@@ -294,12 +365,20 @@ details.add summary { cursor: pointer; font-family: var(--f-display); font-weigh
     <button type="button" class="btn" id="exportJson">Back up progress</button>
     <button type="button" class="btn" id="importJson">Restore backup</button>
     <input type="file" id="importFile" accept="application/json,.json" hidden>
-    <p class="hint">Progress is stored in this browser. Back it up to move it to another device or browser.</p>
+    <p class="hint">Progress and the home inventory are stored in this browser. Back them up to move to another device or browser.</p>
   </div>
+  </div>
+
+  <div id="viewInv" role="tabpanel" aria-labelledby="tabInv" hidden>
+    <div id="invRoot"></div>
+  </div>
+
   <p class="foot" id="status" role="status">Loading saved progress</p>
 </div>
 
 <script src="sync.js"></script>
+<script src="inventory-data.js"></script>
+<script src="inventory.js"></script>
 <script>
 (function () {
   'use strict';
@@ -346,10 +425,10 @@ details.add summary { cursor: pointer; font-family: var(--f-display); font-weigh
     { id:'A01', t:3, c:'Records', i:'Locate roof warranty paperwork (shingle manufacturer and Duval Roofing) and register the shingles', s:'Roof warranty + register', e:0, int:'Once', se:'Fall', d:'2026-11-15', w:'DIY', p:false, v:'Duval Roofing', st:'Not started', n:'Ask Duval and RPD to confirm the shingle warranty allows an unvented, foamed attic.' },
     { id:'A02', t:3, c:'Records', i:'File Andersen window warranty and registration (2025)', s:'Andersen warranty', e:0, int:'Once', se:'Fall', d:'2026-11-30', w:'DIY', p:false, v:'Andersen', st:'Not started', n:'About 35 windows. No storm windows.' },
     { id:'A03', t:3, c:'Records', i:'File spray foam spec and warranty', s:'Spray foam warranty', e:0, int:'Once', se:'Fall', d:'2026-11-15', w:'DIY', p:false, v:'RPD Insulation LLC', st:'Not started', n:'Open and closed cell foam on the roof deck.' },
-    { id:'A04', t:3, c:'Records', i:'Register HVAC equipment: Bosch heat pumps (2024) and Mitsubishi AC (2026)', s:'Register HVAC equipment', e:0, int:'Once', se:'Fall', d:'2026-11-30', w:'DIY', p:false, v:'', st:'Not started', n:'Record model and serial numbers.' },
+    { id:'A04', t:3, c:'Records', i:'Register HVAC equipment: Bosch heat pumps and BVA20 air handlers (2022) and Mitsubishi AC (2026)', s:'Register HVAC equipment', e:0, int:'Once', se:'Fall', d:'2026-11-30', w:'DIY', p:false, v:'', st:'Not started', n:'Record model and serial numbers. The 2022 install is past the usual short registration window, so ask the installer about warranty status.' },
     { id:'A05', t:3, c:'Records', i:'Create a home records folder in Drive: permits, warranties, reports, receipts', s:'Home records folder', e:0, int:'Once', se:'Fall', d:'2026-11-15', w:'DIY', p:false, v:'', st:'Not started', n:'Include the 2021 and 2026 electrical work, the 2026 insurance claim file, and the lead and asbestos reports.' },
     { id:'A06', t:3, c:'Records', i:"Review homeowner's insurance coverage", s:'Insurance review', e:12, int:'Annual', se:'Fall', d:'2026-12-15', w:'DIY', p:false, v:'Insurance agent', st:'Not started', n:'Confirm it reflects the 2026 roof, spray foam, windows and electrical. Ask about water backup and ordinance or law coverage for an 1813 house.' },
-    { id:'A07', t:3, c:'HVAC', i:'Annual service of the 3 Bosch heat pumps', s:'Service Bosch heat pumps', e:12, int:'Annual', se:'Spring', d:'2027-04-30', w:'Pro', p:true, v:'HVAC contractor', st:'Not started', n:'Installed 2024. Service vendor to confirm.' },
+    { id:'A07', t:3, c:'HVAC', i:'Annual service of the 3 Bosch heat pumps', s:'Service Bosch heat pumps', e:12, int:'Annual', se:'Spring', d:'2027-04-30', w:'Pro', p:true, v:'HVAC contractor', st:'Not started', n:'Installed 2022, paired with the 3 BVA20 ECM air handlers. Service vendor to confirm.' },
     { id:'A08', t:3, c:'HVAC', i:'Annual service of the Mitsubishi attic AC', s:'Service Mitsubishi AC', e:12, int:'Annual', se:'Spring', d:'2027-04-30', w:'Pro', p:true, v:'HVAC contractor', st:'Not started', n:'Installed 2026.' },
     { id:'A09', t:3, c:'HVAC', i:'Plan replacement of the older attic AC (about 2000)', s:'Plan old attic AC swap', e:0, int:'Once', se:'Winter', d:'2027-01-31', w:'Pro', p:true, v:'HVAC contractor', st:'To confirm', n:'Roughly 26 years old, likely R-22 refrigerant. Get 2 to 3 quotes in the off-season. Make, model and age to confirm.' },
     { id:'A10', t:3, c:'Trees', i:'Certified arborist evaluation of the large maple and trees near the roof or house', s:'Arborist: maple + trees', e:24, int:'Once, then every 2 to 3 years', se:'Winter', d:'2026-12-15', w:'Pro', p:true, v:'ISA-certified arborist', st:'Not started', n:'Maple has a co-dominant leader and tar spot. No arborist visit to date.' },
@@ -363,7 +442,10 @@ details.add summary { cursor: pointer; font-family: var(--f-display); font-weigh
     { id:'C02', t:4, c:'Landscape and site', i:'Irrigation spring startup and head check', s:'Irrigation startup', e:12, int:'Annual', se:'Spring', d:'2027-04-30', w:'DIY or pro', p:false, v:'Irrigation contractor', st:'Not started', n:'Well-fed system.' },
     { id:'C03', t:4, c:'Landscape and site', i:'Check retaining walls and brick walkway for heave after thaw', s:'Retaining wall + walkway', e:12, int:'Annual', se:'Spring', d:'2027-04-30', w:'DIY', p:false, v:'', st:'Not started', n:'Stone retaining walls and brick walkway.' },
     { id:'C04', t:4, c:'Landscape and site', i:'Asphalt driveway crack fill and sealcoat', s:'Driveway sealcoat', e:24, int:'Every 2 to 3 years', se:'Late spring', d:'2027-06-15', w:'DIY or pro', p:false, v:'', st:'Not started', n:'' },
-    { id:'C05', t:4, c:'Records', i:'Review this register and resolve items marked To confirm', s:'Review this register', e:3, int:'Quarterly', se:'Year-round', d:'2027-01-15', w:'DIY', p:false, v:'', st:'Not started', n:'' }
+    { id:'C05', t:4, c:'Records', i:'Review this register and resolve items marked To confirm', s:'Review this register', e:3, int:'Quarterly', se:'Year-round', d:'2027-01-15', w:'DIY', p:false, v:'', st:'Not started', n:'' },
+    { id:'W16', t:2, c:'Plumbing', i:'Replace the two whole-house water filter cartridges on the main line', s:'Replace main water filters', e:6, int:'Every 6 months, to confirm', se:'Year-round', d:'2026-12-01', w:'DIY', p:false, v:'', st:'To confirm', n:'Two filters right off the main. Cartridge type and the maker\'s change interval are unknown; confirm them and adjust the interval. Write the change date on the housing.' },
+    { id:'C06', t:3, c:'Equipment', i:'Snowblower pre-season check: fuel or battery, shear pins, belts, spark plug and a test start', s:'Snowblower pre-season check', e:12, int:'Annual', se:'Fall', d:'2026-11-08', w:'DIY', p:false, v:'', st:'To confirm', n:'Make, model and fuel type to confirm. Do this before the first forecast storm.' },
+    { id:'C07', t:3, c:'Equipment', i:'Mower fall service: oil, blade, air filter and fuel treatment or battery storage', s:'Mower fall service', e:12, int:'Annual', se:'Fall', d:'2026-11-08', w:'DIY', p:false, v:'', st:'To confirm', n:'Make, model and fuel type to confirm. Winterize before storing.' }
   ];
 
   /* ---------- date helpers (local dates as YYYY-MM-DD) ---------- */
@@ -760,7 +842,7 @@ details.add summary { cursor: pointer; font-family: var(--f-display); font-weigh
   }
   function exportJson() {
     download('home-maintenance-backup-' + TODAY + '.json', 'application/json',
-      JSON.stringify({ app: 'home-maintenance', version: 1, saved: TODAY, tasks: S, custom: CUSTOM, sync: { calId: SYNC.calId, listId: SYNC.listId, map: SYNC.map } }, null, 2));
+      JSON.stringify({ app: 'home-maintenance', version: 1, saved: TODAY, tasks: S, custom: CUSTOM, sync: { calId: SYNC.calId, listId: SYNC.listId, map: SYNC.map }, inventory: inv.getState() }, null, 2));
   }
   function importJson(file) {
     var r = new FileReader();
@@ -771,6 +853,7 @@ details.add summary { cursor: pointer; font-family: var(--f-display); font-weigh
         if (!window.confirm('Replace the progress in this browser with this backup?')) return;
         S = o.tasks || {}; CUSTOM = o.custom || {};
         if (o.sync) { SYNC.calId = o.sync.calId; SYNC.listId = o.sync.listId; SYNC.map = o.sync.map || {}; saveSync(); }
+        if (o.inventory) inv.setState(o.inventory);
         saveLocal(); render();
       } catch (e) { window.alert('That file is not a Home Maintenance backup.'); }
     };
@@ -888,6 +971,44 @@ details.add summary { cursor: pointer; font-family: var(--f-display); font-weigh
   });
   if (SYNC.clientId) HMSync.preload();
   gIdle();
+
+  /* ---------- Home inventory and tabs ---------- */
+  var inv = HMInventory.create({
+    el: document.getElementById('invRoot'),
+    data: HM_INV_DATA,
+    state: (function () { try { return JSON.parse(localStorage.getItem('hm.inv.v1')) || {}; } catch (e) { return {}; } })(),
+    save: function (st) { try { localStorage.setItem('hm.inv.v1', JSON.stringify(st)); } catch (e) {} },
+    today: function () { return TODAY; },
+    getTask: function (id) {
+      var t = find(id);
+      return t ? { s: t.s, date: t.date, late: !t.done && !!t.date && t.date < TODAY } : null;
+    },
+    openTask: function (id) {
+      showView('cal');
+      var t = find(id);
+      if (t && t.date) { sel = t.date; var d = parse(t.date); V = { y: d.getFullYear(), m: d.getMonth() }; }
+      F.q = ''; document.getElementById('q').value = '';
+      F.pro = false; document.getElementById('proOnly').checked = false;
+      expanded = id; render();
+      var el = document.getElementById('task-' + id);
+      if (el && el.scrollIntoView) el.scrollIntoView({ block: 'center' });
+    },
+    download: download,
+    confirm: function (m) { return window.confirm(m); }
+  });
+  function showView(v) {
+    var isInv = v === 'inv';
+    document.getElementById('viewCal').hidden = isInv;
+    document.getElementById('viewInv').hidden = !isInv;
+    document.getElementById('tabCal').setAttribute('aria-selected', String(!isInv));
+    document.getElementById('tabInv').setAttribute('aria-selected', String(isInv));
+    document.getElementById('kpis').hidden = isInv;
+    try { history.replaceState(null, '', isInv ? '#inventory' : location.pathname + location.search); } catch (e) {}
+    if (isInv) inv.render();
+  }
+  document.getElementById('tabCal').addEventListener('click', function () { showView('cal'); });
+  document.getElementById('tabInv').addEventListener('click', function () { showView('inv'); });
+  if (location.hash === '#inventory') showView('inv');
 
   /* ---------- boot ---------- */
   setStatus('boot');
