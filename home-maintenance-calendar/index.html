@@ -1,0 +1,1041 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Home Maintenance Calendar</title>
+<meta name="description" content="Maintenance calendar and task list for an 1813 New England house.">
+<meta name="theme-color" content="#14706A">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2314706A'/%3E%3Cpath d='M6 16 16 7l10 9v10H6z' fill='none' stroke='white' stroke-width='2.4' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: drafting-sheet. A wide month grid is the main sheet; the task list is a title-block column on the right (stacks under the calendar on phones). */
+:root {
+  --paper: #EDF0EE;
+  --sheet: #F8FAF9;
+  --wk: #F0F3F1;
+  --ink: #16212A;
+  --ink-2: #4A5963;
+  --line: #C3CCCB;
+  --line-2: #DCE3E1;
+  --accent: #14706A;
+  --accent-ink: #FFFFFF;
+  --t1: #B03A2E;
+  --t2: #1F5F8B;
+  --t3: #8A6A1F;
+  --t4: #5E6B73;
+  --late: #B03A2E;
+  --f-display: 'Barlow Condensed', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+  --f-body: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --f-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #12181D;
+    --sheet: #192128;
+    --wk: #161D23;
+    --ink: #E4E9EA;
+    --ink-2: #9AA9B1;
+    --line: #34424B;
+    --line-2: #28343C;
+    --accent: #4FBFB3;
+    --accent-ink: #0D1A19;
+    --t1: #E2705F;
+    --t2: #6FB0DB;
+    --t3: #D4B04C;
+    --t4: #93A1AA;
+    --late: #F08577;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #12181D;
+  --sheet: #192128;
+  --wk: #161D23;
+  --ink: #E4E9EA;
+  --ink-2: #9AA9B1;
+  --line: #34424B;
+  --line-2: #28343C;
+  --accent: #4FBFB3;
+  --accent-ink: #0D1A19;
+  --t1: #E2705F;
+  --t2: #6FB0DB;
+  --t3: #D4B04C;
+  --t4: #93A1AA;
+  --late: #F08577;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 14px;
+  line-height: 1.45;
+  padding-block: 18px 28px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  font-variant-numeric: tabular-nums;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.wrap { max-width: 1480px; margin: 0 auto; }
+
+/* Header */
+.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 10px 24px; padding-bottom: 14px; border-bottom: 3px double var(--ink); margin-bottom: 16px; }
+.top h1 { font-family: var(--f-display); font-weight: 700; font-size: 34px; line-height: 1; letter-spacing: .035em; text-transform: uppercase; margin: 0; text-wrap: balance; }
+.sub { margin: 4px 0 0; font-family: var(--f-mono); font-size: 12px; color: var(--ink-2); }
+.kpis { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 13px; color: var(--ink-2); }
+.kpis b { font-family: var(--f-mono); font-weight: 500; color: var(--ink); font-size: 15px; margin-right: 4px; }
+.kpis .late b { color: var(--late); }
+
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 392px; gap: 20px; align-items: start; }
+.cal, .side { min-width: 0; }
+
+/* Calendar */
+.cal-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin-bottom: 10px; }
+.nav { display: flex; align-items: center; gap: 8px; }
+.nav h2 { font-family: var(--f-display); font-weight: 600; font-size: 26px; letter-spacing: .03em; text-transform: uppercase; margin: 0 8px; min-width: 9ch; }
+.ibtn, .btn { background: var(--sheet); border: 1px solid var(--line); border-radius: 3px; padding: 5px 10px; line-height: 1.2; }
+.ibtn { width: 34px; height: 34px; padding: 0; display: inline-grid; place-items: center; font-size: 16px; }
+.ibtn:hover, .btn:hover { border-color: var(--ink-2); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+.btn.danger { color: var(--late); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px; }
+.lg { display: inline-flex; align-items: center; gap: 6px; background: var(--sheet); border: 1px solid var(--line); border-radius: 999px; padding: 4px 11px 4px 9px; font-size: 12.5px; }
+.lg i { width: 9px; height: 9px; border-radius: 2px; background: var(--tc); }
+.lg[aria-pressed="false"] { opacity: .45; }
+.lg[aria-pressed="false"] i { background: transparent; box-shadow: inset 0 0 0 1.5px var(--tc); }
+
+.grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+.wd { background: var(--paper); font-family: var(--f-display); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; font-size: 13px; color: var(--ink-2); padding: 5px 8px; }
+.day { background: var(--sheet); min-height: 108px; padding: 4px 4px 6px; min-width: 0; cursor: pointer; display: flex; flex-direction: column; gap: 2px; }
+.day.we { background: var(--wk); }
+.day.other { opacity: .55; }
+.day.sel { box-shadow: inset 0 0 0 2px var(--accent); }
+.dnum { align-self: flex-start; background: none; border: 0; font-family: var(--f-mono); font-size: 12px; color: var(--ink-2); padding: 1px 5px; border-radius: 10px; }
+.dnum.today { background: var(--accent); color: var(--accent-ink); font-weight: 500; }
+.chips { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.chip { display: block; width: 100%; text-align: left; font-size: 11.5px; line-height: 1.25; padding: 2px 5px 2px 6px; border: 0; border-left: 3px solid var(--tc); border-radius: 2px; background: var(--sheet); background: color-mix(in srgb, var(--tc) 14%, var(--sheet)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chip.proj { background: transparent; border: 1px dashed var(--line); border-left: 3px dashed var(--tc); color: var(--ink-2); }
+.chip.done { text-decoration: line-through; opacity: .6; }
+.chip.late { box-shadow: inset 0 0 0 1px var(--late); }
+.chip.on { outline: 2px solid var(--ink); outline-offset: 1px; }
+.chip.x { display: none; }
+.more { background: none; border: 0; text-align: left; font-size: 11.5px; color: var(--ink-2); padding: 1px 6px; }
+
+.daypanel { margin-top: 12px; background: var(--sheet); border: 1px solid var(--line); border-radius: 3px; padding: 12px 14px 14px; }
+.daypanel h3 { font-family: var(--f-display); font-weight: 600; font-size: 20px; letter-spacing: .03em; text-transform: uppercase; margin: 0 0 8px; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+.daypanel h3 span { font-family: var(--f-mono); font-size: 12px; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--ink-2); }
+.dprow { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; background: none; border: 0; border-top: 1px solid var(--line-2); padding: 7px 2px; }
+.dprow i { width: 9px; height: 9px; border-radius: 2px; background: var(--tc); flex: none; }
+.dprow .k { margin-left: auto; font-family: var(--f-mono); font-size: 11px; color: var(--ink-2); flex: none; }
+.dprow .tt { min-width: 0; }
+.empty { color: var(--ink-2); margin: 0; }
+.empty button { background: none; border: 0; padding: 0; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; text-align: left; }
+
+/* Task list */
+.side { position: sticky; top: calc(12px + env(safe-area-inset-top, 0px)); max-height: calc(100vh - 24px); display: flex; flex-direction: column; background: var(--sheet); border: 1px solid var(--line); border-top: 3px double var(--ink); border-radius: 0 0 3px 3px; }
+.side-head { padding: 12px 14px 8px; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.side-head h2 { font-family: var(--f-display); font-weight: 600; font-size: 22px; letter-spacing: .04em; text-transform: uppercase; margin: 0; }
+.side-head span { font-family: var(--f-mono); font-size: 12px; color: var(--ink-2); }
+.filters { padding: 0 14px 10px; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; border-bottom: 1px solid var(--line); }
+.filters input[type="search"] { flex: 1 1 100%; background: var(--paper); border: 1px solid var(--line); border-radius: 3px; padding: 6px 9px; min-width: 0; }
+.filters label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
+.filters input[type="checkbox"] { accent-color: var(--accent); width: 15px; height: 15px; }
+.list { overflow: auto; padding: 4px 0 8px; min-height: 0; flex: 1 1 auto; }
+.grp { font-family: var(--f-display); font-weight: 600; font-size: 14px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); padding: 12px 14px 5px; display: flex; gap: 8px; align-items: baseline; }
+.grp b { font-family: var(--f-mono); font-weight: 400; font-size: 12px; letter-spacing: 0; }
+.grp.late { color: var(--late); }
+.task { border-top: 1px solid var(--line-2); border-left: 4px solid var(--tc); }
+.task.open { background: var(--paper); }
+.thead { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; width: 100%; text-align: left; background: none; border: 0; padding: 8px 12px 8px 10px; }
+.ttitle { display: block; font-weight: 500; line-height: 1.3; text-wrap: pretty; }
+.isdone .ttitle { text-decoration: line-through; color: var(--ink-2); }
+.tsub { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; font-size: 12px; color: var(--ink-2); margin-top: 2px; }
+.tid { font-family: var(--f-mono); font-size: 11px; }
+.badge { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase; border: 1px solid currentColor; border-radius: 2px; padding: 0 4px; line-height: 1.5; }
+.badge.pro { color: var(--ink); }
+.badge.confirm { color: var(--t3); }
+.tdate { display: flex; flex-direction: column; align-items: flex-end; font-family: var(--f-mono); font-size: 12px; white-space: nowrap; }
+.tdate .rel { color: var(--ink-2); font-size: 11px; }
+.tdate.late, .tdate.late .rel { color: var(--late); }
+.detail { padding: 2px 14px 14px 14px; display: flex; flex-direction: column; gap: 9px; }
+.meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 6px 14px; margin: 0; }
+.meta dt { font-family: var(--f-display); font-weight: 600; font-size: 12px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-2); }
+.meta dd { margin: 0; font-size: 13px; }
+.notes, .last { margin: 0; font-size: 13px; max-width: 65ch; text-wrap: pretty; }
+.last { color: var(--ink-2); }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.resched { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; margin-left: auto; }
+.resched input, .detail textarea, .addform input, .addform select { background: var(--sheet); border: 1px solid var(--line); border-radius: 3px; padding: 4px 7px; min-width: 0; }
+.notelab { font-family: var(--f-display); font-weight: 600; font-size: 12px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-2); }
+.detail textarea { width: 100%; resize: vertical; line-height: 1.4; }
+.hist { margin: 0; padding-left: 18px; font-size: 12.5px; color: var(--ink-2); }
+.donetag { font-family: var(--f-mono); font-size: 12px; color: var(--accent); }
+
+details.add { border-top: 1px solid var(--line); padding: 8px 14px 10px; }
+details.add summary { cursor: pointer; font-family: var(--f-display); font-weight: 600; font-size: 15px; letter-spacing: .07em; text-transform: uppercase; }
+.addform { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.addform .full { grid-column: 1 / -1; }
+.addform label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--ink-2); }
+.addform input, .addform select { width: 100%; color: var(--ink); }
+
+.foot { margin-top: 14px; font-size: 12px; color: var(--ink-2); font-family: var(--f-mono); }
+.tools { margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.tools .hint { font-size: 12px; color: var(--ink-2); flex: 1 1 260px; margin: 0; }
+.gsync { margin-top: 18px; padding: 12px 14px; background: var(--sheet); border: 1px solid var(--line); border-top: 3px double var(--ink); border-radius: 0 0 3px 3px; }
+.gsync h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; letter-spacing: .06em; text-transform: uppercase; margin: 0 0 8px; }
+.gs-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+.gs-msg { font-size: 12.5px; color: var(--ink-2); flex: 1 1 280px; margin: 0; }
+.gs-msg.bad { color: var(--late); }
+.gsync details { margin-top: 10px; font-size: 13px; }
+.gsync summary { cursor: pointer; font-family: var(--f-display); font-weight: 600; letter-spacing: .07em; text-transform: uppercase; font-size: 14px; }
+.gsync label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--ink-2); margin: 8px 0; }
+.gsync input[type="text"] { background: var(--paper); border: 1px solid var(--line); border-radius: 3px; padding: 6px 9px; min-width: 0; font-family: var(--f-mono); font-size: 12px; color: var(--ink); }
+.gsync .help { color: var(--ink-2); margin: 6px 0 0; max-width: 70ch; }
+
+/* Tabs and home inventory */
+.tabs { display: flex; gap: 4px; margin: -4px 0 16px; border-bottom: 1px solid var(--line); }
+.tabs button { background: none; border: 0; border-bottom: 3px solid transparent; margin-bottom: -1px; padding: 8px 14px 7px; font-family: var(--f-display); font-weight: 600; font-size: 17px; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-2); }
+.tabs button:hover { color: var(--ink); }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.ibar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 20px; margin-bottom: 4px; }
+.ikpis { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 13px; color: var(--ink-2); }
+.ik b { font-family: var(--f-mono); font-weight: 500; color: var(--ink); font-size: 15px; margin-right: 4px; }
+.ik.bad b { color: var(--late); }
+.ik.warn b { color: var(--t3); }
+.ifilters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.ifilters input[type="search"], .ifilters select { background: var(--sheet); border: 1px solid var(--line); border-radius: 3px; padding: 6px 9px; min-width: 0; }
+.ifilters input[type="search"] { width: min(320px, 100%); }
+.ifilters label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
+.icat h2, .iabsent h2 { font-family: var(--f-display); font-weight: 600; font-size: 20px; letter-spacing: .05em; text-transform: uppercase; margin: 22px 0 8px; padding-bottom: 4px; border-bottom: 1px solid var(--line); }
+.icat h2 span { font-family: var(--f-mono); font-size: 12px; font-weight: 400; letter-spacing: 0; color: var(--ink-2); margin-left: 6px; }
+.igrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); gap: 10px; align-items: start; }
+.inv { background: var(--sheet); border: 1px solid var(--line); border-radius: 3px; min-width: 0; }
+.inv.open { grid-column: 1 / -1; border-color: var(--accent); }
+.inv-sum { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "n g" "s s" "b b"; gap: 2px 14px; width: 100%; text-align: left; background: none; border: 0; padding: 10px 12px; }
+.iname { grid-area: n; font-weight: 600; line-height: 1.3; }
+.iqty { font-family: var(--f-mono); font-weight: 400; font-size: 12px; color: var(--ink-2); }
+.isub { grid-area: s; font-size: 12.5px; color: var(--ink-2); text-wrap: pretty; }
+.igauge { grid-area: g; align-self: center; justify-self: end; }
+.gauge { display: inline-flex; align-items: center; gap: 6px; font-family: var(--f-mono); font-size: 11.5px; color: var(--ink-2); white-space: nowrap; }
+.gbar { width: 64px; height: 6px; background: var(--line-2); border-radius: 3px; overflow: hidden; display: inline-block; }
+.gbar i { display: block; height: 100%; background: var(--accent); }
+.gauge.mid .gbar i { background: var(--t4); }
+.gauge.plan .gbar i { background: var(--t3); }
+.gauge.past .gbar i { background: var(--late); }
+.gauge.past .gtxt { color: var(--late); }
+.ibadges { grid-area: b; display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.ibadge { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase; border: 1px solid currentColor; border-radius: 2px; padding: 0 4px; line-height: 1.5; white-space: nowrap; }
+.ibadge.past { color: var(--late); }
+.ibadge.plan { color: var(--t3); }
+.ibadge.confirm { color: var(--t2); }
+.ibadge.miss { color: var(--ink-2); }
+.inv-det { padding: 2px 14px 14px; border-top: 1px solid var(--line-2); display: flex; flex-direction: column; gap: 12px; }
+.iflag { margin: 10px 0 0; font-size: 13px; padding: 8px 10px; border-left: 3px solid var(--t2); background: var(--paper); display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.iflag.ok { border-left-color: var(--accent); color: var(--ink-2); }
+.iform { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px 12px; }
+.iform .full { grid-column: 1 / -1; }
+.iform label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--ink-2); }
+.iform input, .iform select, .iform textarea { background: var(--paper); border: 1px solid var(--line); border-radius: 3px; padding: 5px 8px; min-width: 0; color: var(--ink); }
+.iform textarea { resize: vertical; line-height: 1.4; }
+.ilinks { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.ilabel { font-family: var(--f-display); font-weight: 600; font-size: 12px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-2); margin-right: 4px; }
+.taskchip { background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; font-size: 12px; }
+.taskchip b { font-family: var(--f-mono); font-weight: 500; }
+.taskchip.late { border-color: var(--late); }
+.taskchip:hover { border-color: var(--accent); }
+.iactions { display: flex; justify-content: flex-end; }
+.iadd { margin-top: 22px; border-top: 1px solid var(--line); padding-top: 10px; }
+.iadd summary { cursor: pointer; font-family: var(--f-display); font-weight: 600; font-size: 15px; letter-spacing: .07em; text-transform: uppercase; }
+.iadd form { margin-top: 10px; max-width: 640px; }
+.iabsent ul { margin: 0; padding-left: 18px; font-size: 13px; color: var(--ink-2); columns: 2 280px; }
+.ihint { font-size: 12px; color: var(--ink-2); max-width: 70ch; }
+.linkbtn { background: none; border: 0; padding: 0; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; font-size: 12px; }
+@media (max-width: 520px) {
+  .inv-sum { grid-template-columns: minmax(0, 1fr); grid-template-areas: "n" "s" "g" "b"; }
+  .igauge { justify-self: start; margin-top: 4px; }
+  .tabs button { padding: 8px 10px 7px; font-size: 15px; }
+}
+
+@media (max-width: 959px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .side { position: static; max-height: none; }
+  .list { overflow: visible; }
+}
+@media (max-width: 640px) {
+  .top h1 { font-size: 28px; }
+  .day { min-height: 58px; padding: 3px; }
+  .chips { flex-direction: row; flex-wrap: wrap; gap: 3px; padding: 0 2px; }
+  .chip, .chip.x { display: block; width: 8px; height: 8px; padding: 0; border: 0; border-radius: 50%; background: var(--tc); }
+  .chip.proj { background: transparent; border: 1.5px solid var(--tc); }
+  .chip .t { display: none; }
+  .more { display: none; }
+  .wd { padding: 4px 2px; text-align: center; font-size: 11px; letter-spacing: .02em; }
+  .nav h2 { font-size: 22px; min-width: 0; }
+  .resched { margin-left: 0; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Home Maintenance</h1>
+      <p class="sub">Federal house, built 1813 &middot; New England</p>
+    </div>
+    <div class="kpis" id="kpis" aria-live="polite"></div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button type="button" role="tab" id="tabCal" aria-selected="true" aria-controls="viewCal">Calendar and tasks</button>
+    <button type="button" role="tab" id="tabInv" aria-selected="false" aria-controls="viewInv">Home inventory</button>
+  </nav>
+
+  <div id="viewCal" role="tabpanel" aria-labelledby="tabCal">
+  <div class="layout">
+    <section class="cal" aria-label="Calendar">
+      <div class="cal-bar">
+        <div class="nav">
+          <button type="button" class="ibtn" id="prev" aria-label="Previous month">&lsaquo;</button>
+          <h2 id="monthLabel"></h2>
+          <button type="button" class="ibtn" id="next" aria-label="Next month">&rsaquo;</button>
+          <button type="button" class="btn" id="todayBtn">Today</button>
+        </div>
+        <div class="legend" id="legend" role="group" aria-label="Filter by priority"></div>
+      </div>
+      <div class="grid" id="grid"></div>
+      <div class="daypanel" id="dayPanel"></div>
+    </section>
+
+    <aside class="side" aria-label="Task list">
+      <div class="side-head"><h2>Task list</h2><span id="counts"></span></div>
+      <div class="filters">
+        <input type="search" id="q" placeholder="Search tasks, vendors, systems" aria-label="Search tasks">
+        <label for="proOnly"><input type="checkbox" id="proOnly"> Licensed pro only</label>
+        <label for="showDone"><input type="checkbox" id="showDone"> Show completed</label>
+      </div>
+      <div class="list" id="list"></div>
+      <details class="add">
+        <summary>Add a task</summary>
+        <form class="addform" id="addForm">
+          <label class="full" for="aTitle">Task<input id="aTitle" required maxlength="120" placeholder="Check attic hatch seal"></label>
+          <label for="aDate">Due date<input type="date" id="aDate"></label>
+          <label for="aTier">Priority
+            <select id="aTier"><option value="1">Safety</option><option value="2">Water</option><option value="3" selected>Asset</option><option value="4">Cosmetic</option></select>
+          </label>
+          <label for="aWho">Who
+            <select id="aWho"><option>DIY</option><option>Pro</option><option>DIY or pro</option></select>
+          </label>
+          <label for="aEvery">Repeats
+            <select id="aEvery"><option value="0">Does not repeat</option><option value="1">Monthly</option><option value="3">Quarterly</option><option value="6">Every 6 months</option><option value="12">Yearly</option></select>
+          </label>
+          <div class="full"><button class="btn primary" type="submit">Add to calendar</button></div>
+        </form>
+      </details>
+    </aside>
+  </div>
+  <section class="gsync" aria-label="Google sync">
+    <h2>Google Calendar and Tasks</h2>
+    <div class="gs-row">
+      <button type="button" class="btn primary" id="gSync">Sync with Google</button>
+      <button type="button" class="btn" id="gReadd" hidden>Re-add items deleted in Google</button>
+      <p class="gs-msg" id="gMsg" role="status" aria-live="polite"></p>
+    </div>
+    <details id="gSetup">
+      <summary>Google setup</summary>
+      <label for="gClient">OAuth client ID
+        <input type="text" id="gClient" autocomplete="off" spellcheck="false" placeholder="1234567890-abc123.apps.googleusercontent.com">
+      </label>
+      <button type="button" class="btn" id="gSave">Save client ID</button>
+      <p class="help">One-time setup in Google Cloud, step by step in <code>docs/GOOGLE-SETUP.md</code>. The client ID is not a secret. Sync creates a calendar and a task list, both named Home Maintenance, and never touches your other calendars.</p>
+      <p class="help">Two-way: completing a task in Google Tasks marks it done here, and moving an event or task changes the due date here. If you changed the same item here since the last sync, this app wins. Sync runs when you press the button.</p>
+    </details>
+  </section>
+
+  <div class="tools">
+    <button type="button" class="btn" id="exportIcs">Export to Google Calendar (.ics)</button>
+    <button type="button" class="btn" id="exportJson">Back up progress</button>
+    <button type="button" class="btn" id="importJson">Restore backup</button>
+    <input type="file" id="importFile" accept="application/json,.json" hidden>
+    <p class="hint">Progress and the home inventory are stored in this browser. Back them up to move to another device or browser.</p>
+  </div>
+  </div>
+
+  <div id="viewInv" role="tabpanel" aria-labelledby="tabInv" hidden>
+    <div id="invRoot"></div>
+  </div>
+
+  <p class="foot" id="status" role="status">Loading saved progress</p>
+</div>
+
+<script src="sync.js"></script>
+<script src="inventory-data.js"></script>
+<script src="inventory.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var TIERS = { 1: 'Safety', 2: 'Water', 3: 'Asset', 4: 'Cosmetic' };
+
+  /* Register. t tier, c category, i item, s short label, e repeat in months (0 = once),
+     int interval text, se season, d first due date, w who, p licensed pro, v vendor,
+     st initial status, l last done, n notes, asn as-needed. */
+  var BASE = [
+    { id:'S01', t:1, c:'Combustion and CO', i:'Level 2 chimney inspection with camera scan of every flue', s:'Chimney inspection (L2)', e:0, int:'Once, then per findings', se:'Fall', d:'2026-11-15', w:'Pro', p:true, v:'CSIA-certified inspector', st:'Not started', n:'Boilers vent through the right-hand chimney as seen from the front door. Liner type unknown. Mortar debris on dampers and flues. Decorative candles only, 1 to 2 days a year; hold off until the scan is done.' },
+    { id:'S02', t:1, c:'Combustion and CO', i:'Annual sweep and flue check of the active boiler chimney', s:'Boiler flue sweep', e:12, int:'Annual', se:'Fall', d:null, w:'Pro', p:true, v:'CSIA-certified inspector', st:'Not started', n:'Set the date and interval after the Level 2 inspection (S01). Confirm whether the flue is lined (stainless or clay).' },
+    { id:'S03', t:1, c:'Combustion and CO', i:'Combustion and draft test on both boilers, written report', s:'Boiler draft test', e:12, int:'Annual', se:'Fall', d:'2026-11-01', w:'Pro', p:true, v:'JJ Donovan & Sons', st:'Not started', n:'New windows and spray foam make the house tighter. Ask for CO in flue gas, draft and efficiency readings.' },
+    { id:'S04', t:1, c:'Combustion and CO', i:'Boiler service (burner, nozzle, filters, controls)', s:'Boiler service', e:12, int:'Annual', se:'Fall', d:null, w:'Pro', p:true, v:'JJ Donovan & Sons', st:'Active', n:'Last service date to confirm. Ask them to check the pressure relief valve, expansion tank, low-water cutoff and circulators. Enter the visit date once JJ Donovan books it.' },
+    { id:'S05', t:1, c:'Combustion and CO', i:'Oil tank inspection and vent alarm check, both basement tanks', s:'Oil tank + vent alarm', e:12, int:'Annual', se:'Fall', d:'2026-11-01', w:'Pro', p:true, v:'JJ Donovan & Sons', st:'Active', n:'Inspected annually, no leaks or rust. Vent alarm status unknown. Record tank age and capacity from the labels.' },
+    { id:'S06', t:1, c:'Fire', i:'Confirm clearance and ignition barrier where spray foam meets the chimneys', s:'Foam clearance at chimneys', e:0, int:'Once', se:'Fall', d:'2026-11-15', w:'Pro', p:true, v:'RPD Insulation LLC; mason', st:'Not started', n:'Foam has a break point around the chimneys. Ask RPD whether an ignition barrier was applied and whether clearances meet code. Get the foam spec and warranty.' },
+    { id:'S07', t:1, c:'Fire', i:'Test CO and smoke alarms', s:'Test CO + smoke alarms', e:1, int:'Monthly', se:'Year-round', d:'2026-11-01', w:'DIY', p:false, v:'', st:'Active', n:'Hardwired and interconnected, in every room and hallway. CO detectors installed 2026. Record install dates from the labels and replace per the manufacturer date.' },
+    { id:'S08', t:1, c:'Fire', i:'Check fire extinguishers (one per floor)', s:'Fire extinguisher check', e:12, int:'Annual', se:'Fall', d:'2026-11-14', w:'DIY', p:false, v:'', st:'Active', n:'Check gauge and expiration date.' },
+    { id:'S09', t:1, c:'Fire', i:'Dryer vent cleaning', s:'Dryer vent cleaning', e:12, int:'Annual', se:'Spring', d:'2027-04-15', w:'DIY or pro', p:false, v:'', st:'To confirm', n:'Confirm there is a dryer, and the vent path and length.' },
+    { id:'S10', t:1, c:'Electrical', i:'Photograph the label on each of the 3 panels and record amperage', s:'Photograph panel labels', e:0, int:'Once', se:'Fall', d:'2026-10-31', w:'DIY', p:false, v:'', st:'Not started', n:'Amperage unknown. Breaker panels. No knob-and-tube, cloth-sheathed or aluminum wiring reported.' },
+    { id:'S11', t:1, c:'Electrical', i:'Get permit numbers for the 2021 and 2026 electrical work', s:'Get electrical permit numbers', e:0, int:'Once', se:'Fall', d:'2026-11-30', w:'DIY', p:false, v:'Electrician; town wiring inspector', st:'Not started', n:'No permits reportedly pulled. Ask the electrician or the town. Matters for insurance and resale.' },
+    { id:'S12', t:1, c:'Electrical', i:'Test GFCI outlets', s:'Test GFCI outlets', e:1, int:'Monthly', se:'Year-round', d:'2026-11-01', w:'DIY', p:false, v:'', st:'Active', n:'GFCIs in place. No flickering, buzzing or warm outlets or switches reported.' },
+    { id:'S13', t:1, c:'Hazardous materials', i:'Lead inspection or risk assessment by a licensed lead inspector', s:'Lead inspection', e:0, int:'Once', se:'Winter', d:'2026-12-31', w:'Pro', p:true, v:'Licensed lead inspector', st:'Not started', n:'1813 house, paint history unknown, toddler in the home. Exterior repainted in 2024 by a painter without RRP certification and no lead test. Ask the pediatrician about blood lead screening. Confirm state lead law requirements with the inspector.' },
+    { id:'S14', t:1, c:'Hazardous materials', i:'Soil lead test at the foundation drip line and play areas', s:'Soil lead test', e:0, int:'Once', se:'Spring', d:'2027-04-30', w:'DIY or pro', p:false, v:'State-certified lab', st:'Not started', n:'Sample after thaw. Relates to the 2024 exterior paint work.' },
+    { id:'S15', t:1, c:'Hazardous materials', i:'Review lead and asbestos reports from the 2026 water-damage work', s:'Review lead/asbestos reports', e:0, int:'Once', se:'Fall', d:'2026-11-15', w:'DIY', p:false, v:'', st:'Not started', n:'No lead or asbestos found. Check which materials were sampled. Plaster, boiler and duct insulation, and flooring in unaffected areas may be untested. Test before any future renovation.' },
+    { id:'S16', t:1, c:'Hazardous materials', i:'Retest radon', s:'Radon retest', e:24, int:'Every 2 years', se:'Winter', d:'2026-12-31', w:'DIY', p:false, v:'', st:'Not started', l:'2021 (at purchase)', n:'Windows and attic insulation changed the envelope in 2025 and 2026. Test during the heating season with the house closed.' },
+    { id:'S17', t:1, c:'Water quality', i:'Well water test: coliform and nitrate', s:'Well test: bacteria, nitrate', e:12, int:'Annual', se:'Spring', d:'2027-04-30', w:'DIY', p:false, v:'Certified lab', st:'To confirm', n:'Last test date unknown. The well feeds the irrigation and the 3 exterior spigots.' },
+    { id:'S18', t:1, c:'Water quality', i:'Well water broad panel: arsenic, uranium, radon, PFAS, metals', s:'Well test: broad panel', e:48, int:'Once, then every 3 to 5 years', se:'Spring', d:'2027-04-30', w:'DIY', p:false, v:'Certified lab', st:'Not started', n:'Bedrock wells in New England often show these. Matters if a child drinks from or plays with the hose.' },
+    { id:'W01', t:2, c:'Irrigation', i:'Winterize irrigation: blow out lines, drain, disconnect hoses', s:'Winterize irrigation', e:12, int:'Annual', se:'Fall', d:'2026-10-24', w:'DIY or pro', p:false, v:'Irrigation contractor', st:'Not started', n:'Do before the first hard freeze. Well-fed system.' },
+    { id:'W02', t:2, c:'Roof and gutters', i:'Clean gutters and check downspout extensions', s:'Clean gutters', e:6, int:'Twice a year', se:'Late fall and late spring', d:'2026-11-28', w:'DIY or pro', p:false, v:'', st:'Not started', n:'After leaf drop. Some downspouts discharge at the base of the house.' },
+    { id:'W03', t:2, c:'Roof and gutters', i:'Cap the unused chimney flues', s:'Cap unused flues', e:0, int:'Once', se:'Fall', d:'2026-11-30', w:'Pro', p:true, v:'Mason or chimney contractor', st:'Not started', n:'All flues are uncapped. Open flues let in rain and freeze-thaw. The cap on the active boiler flue must not restrict venting; coordinate with S01.' },
+    { id:'W04', t:2, c:'Roof and gutters', i:'Ground-level roof and flashing check, plus after major storms', s:'Roof + flashing check', e:6, int:'Twice a year and after storms', se:'Spring and fall', d:'2026-11-15', w:'DIY', p:false, v:'', st:'Not started', n:'Foam on the roof deck hides leaks from the attic side. Chimney flashing is thin metal. Look for lifted shingle tabs.' },
+    { id:'W05', t:2, c:'Roof and gutters', i:'Check for ice dams and snow load after heavy snow', s:'Ice dam + snow check', e:0, asn:true, int:'After heavy snow', se:'Winter', d:null, w:'DIY', p:false, v:'', st:'Seasonal', n:'The 2026 damage came from ice dams under poor insulation. Insulation is now fixed; watch the first winter. Use Log a check after each heavy snow.' },
+    { id:'W06', t:2, c:'Plumbing', i:'Confirm no cross-connection between well plumbing and municipal supply', s:'Well/municipal separation', e:0, int:'Once', se:'Fall', d:'2026-11-30', w:'Pro', p:true, v:'Licensed plumber', st:'Not started', n:'Irrigation and exterior spigots are on the well. Plumber to confirm separation and whether any backflow preventer is installed.' },
+    { id:'W07', t:2, c:'HVAC', i:'Check attic air handlers for hot-water coils, freeze protection and minimum attic temperature', s:'Attic coil freeze check', e:0, int:'Once', se:'Fall', d:'2026-11-15', w:'Pro', p:true, v:'JJ Donovan & Sons', st:'Not started', n:'If coils carry boiler water, a power or boiler outage in a deep freeze can burst them. Ask about a glycol loop and low-temperature alarms.' },
+    { id:'W08', t:2, c:'Plumbing', i:'Install water leak sensors: boiler and water heater area, basement low point, well tank, attic AC pans', s:'Install leak sensors', e:0, int:'Once', se:'Fall', d:'2026-11-15', w:'DIY', p:false, v:'', st:'Not started', n:'Choose sensors that alert phones.' },
+    { id:'W09', t:2, c:'HVAC', i:'Clear attic AC condensate drains and test float switches', s:'Attic AC drains', e:12, int:'Annual', se:'Spring', d:'2027-04-30', w:'DIY or pro', p:false, v:'', st:'Not started', n:'Attic units sit above finished space. Check secondary pans too.' },
+    { id:'W10', t:2, c:'Plumbing', i:'Well pump and pressure tank service', s:'Well pump + tank service', e:12, int:'Annual', se:'Fall', d:'2026-11-20', w:'Pro', p:true, v:'Well contractor', st:'To confirm', n:'Both are in the basement. Service history unknown, so the date is a placeholder until a contractor is booked.' },
+    { id:'W11', t:2, c:'Plumbing', i:'Inspect the 115-gallon indirect water heater (Therma-Flow TF 115, made May 2002) for leaks, corrosion and relief valve condition', s:'Water heater check', e:12, int:'Annual', se:'Fall', d:'2026-11-15', w:'DIY', p:false, v:'', st:'Active', l:'', n:'Therma-Flow TF 115, 115-gallon stainless indirect tank, manufactured May 2002 (about 24 years old). Check the T&P relief valve and discharge pipe, connections, and the floor underneath for moisture. Pair with the leak sensor (W08).' },
+    { id:'W12', t:2, c:'Plumbing', i:'Exercise the main water shutoff', s:'Exercise main shutoff', e:12, int:'Annual', se:'Spring', d:'2027-04-10', w:'DIY', p:false, v:'', st:'Not started', n:'Main shutoff is in the basement, facing the street. Tag it.' },
+    { id:'W13', t:2, c:'Foundation', i:'Check the fieldstone foundation and the 2001 addition joint after heavy rain', s:'Foundation check', e:3, int:'Quarterly and after heavy rain', se:'Year-round', d:'2026-12-15', w:'DIY', p:false, v:'', st:'Seasonal', n:'Light moisture in heavy rain is rare. No sump or dehumidifier. Look at the joint where the poured 2001 foundation meets the fieldstone.' },
+    { id:'W14', t:2, c:'HVAC', i:'Replace filters on all air handlers', s:'Replace HVAC filters', e:3, int:'Quarterly', se:'Year-round', d:'2026-11-01', w:'DIY', p:false, v:'', st:'To confirm', n:'3 Bosch heat pumps (basement) and 2 AC units (attic). Record filter sizes.' },
+    { id:'W15', t:2, c:'Plumbing', i:'Have the plumber assess the 115-gallon Therma-Flow TF 115 (2002) and set a replacement plan', s:'Water heater assessment', e:0, int:'Once', se:'Winter', d:'2026-12-15', w:'Pro', p:true, v:'Plumber; JJ Donovan & Sons', st:'Not started', n:'Unit is about 24 years old. Stainless tanks often outlast steel, but age raises failure risk. Ask for a condition check (relief valve, heat exchanger coil, tank seams), the warranty status and the replacement lead time, so a failure does not force a rushed swap. A 115-gallon tank is large and may be hard to get into and out of the basement, so ask about access and a like-for-like replacement.' },
+    { id:'A01', t:3, c:'Records', i:'Locate roof warranty paperwork (shingle manufacturer and Duval Roofing) and register the shingles', s:'Roof warranty + register', e:0, int:'Once', se:'Fall', d:'2026-11-15', w:'DIY', p:false, v:'Duval Roofing', st:'Not started', n:'Ask Duval and RPD to confirm the shingle warranty allows an unvented, foamed attic.' },
+    { id:'A02', t:3, c:'Records', i:'File Andersen window warranty and registration (2025)', s:'Andersen warranty', e:0, int:'Once', se:'Fall', d:'2026-11-30', w:'DIY', p:false, v:'Andersen', st:'Not started', n:'About 35 windows. No storm windows.' },
+    { id:'A03', t:3, c:'Records', i:'File spray foam spec and warranty', s:'Spray foam warranty', e:0, int:'Once', se:'Fall', d:'2026-11-15', w:'DIY', p:false, v:'RPD Insulation LLC', st:'Not started', n:'Open and closed cell foam on the roof deck.' },
+    { id:'A04', t:3, c:'Records', i:'Register HVAC equipment: Bosch heat pumps and BVA20 air handlers (2022) and Mitsubishi AC (2026)', s:'Register HVAC equipment', e:0, int:'Once', se:'Fall', d:'2026-11-30', w:'DIY', p:false, v:'', st:'Not started', n:'Record model and serial numbers. The 2022 install is past the usual short registration window, so ask the installer about warranty status.' },
+    { id:'A05', t:3, c:'Records', i:'Create a home records folder in Drive: permits, warranties, reports, receipts', s:'Home records folder', e:0, int:'Once', se:'Fall', d:'2026-11-15', w:'DIY', p:false, v:'', st:'Not started', n:'Include the 2021 and 2026 electrical work, the 2026 insurance claim file, and the lead and asbestos reports.' },
+    { id:'A06', t:3, c:'Records', i:"Review homeowner's insurance coverage", s:'Insurance review', e:12, int:'Annual', se:'Fall', d:'2026-12-15', w:'DIY', p:false, v:'Insurance agent', st:'Not started', n:'Confirm it reflects the 2026 roof, spray foam, windows and electrical. Ask about water backup and ordinance or law coverage for an 1813 house.' },
+    { id:'A07', t:3, c:'HVAC', i:'Annual service of the 3 Bosch heat pumps', s:'Service Bosch heat pumps', e:12, int:'Annual', se:'Spring', d:'2027-04-30', w:'Pro', p:true, v:'HVAC contractor', st:'Not started', n:'Installed 2022, paired with the 3 BVA20 ECM air handlers. Service vendor to confirm.' },
+    { id:'A08', t:3, c:'HVAC', i:'Annual service of the Mitsubishi attic AC', s:'Service Mitsubishi AC', e:12, int:'Annual', se:'Spring', d:'2027-04-30', w:'Pro', p:true, v:'HVAC contractor', st:'Not started', n:'Installed 2026.' },
+    { id:'A09', t:3, c:'HVAC', i:'Plan replacement of the older attic AC (about 2000)', s:'Plan old attic AC swap', e:0, int:'Once', se:'Winter', d:'2027-01-31', w:'Pro', p:true, v:'HVAC contractor', st:'To confirm', n:'Roughly 26 years old, likely R-22 refrigerant. Get 2 to 3 quotes in the off-season. Make, model and age to confirm.' },
+    { id:'A10', t:3, c:'Trees', i:'Certified arborist evaluation of the large maple and trees near the roof or house', s:'Arborist: maple + trees', e:24, int:'Once, then every 2 to 3 years', se:'Winter', d:'2026-12-15', w:'Pro', p:true, v:'ISA-certified arborist', st:'Not started', n:'Maple has a co-dominant leader and tar spot. No arborist visit to date.' },
+    { id:'A11', t:3, c:'Structure and pests', i:'Orkin quarterly pest service', s:'Orkin visit', e:3, int:'Quarterly', se:'Year-round', d:null, w:'Pro', p:true, v:'Orkin', st:'Active', n:'Plan covers wood-destroying insects, per owner. Enter the next visit date from Orkin.' },
+    { id:'A12', t:3, c:'Structure and pests', i:'Ask Orkin for a written annual wood-destroying insect report', s:'Orkin WDI report', e:12, int:'Annual', se:'Spring', d:'2027-04-30', w:'DIY', p:false, v:'Orkin', st:'Not started', n:'Old powder post beetle signs, not recent.' },
+    { id:'A13', t:3, c:'Structure and pests', i:'Inspect sills, beams and basement framing', s:'Inspect sills + beams', e:12, int:'Annual', se:'Spring', d:'2027-04-30', w:'DIY', p:false, v:'', st:'Not started', n:'Fieldstone foundation. No issues with sills, beams or floors reported.' },
+    { id:'A14', t:3, c:'Roof and gutters', i:'Evaluate snow guards over entries and the brick walkway', s:'Snow guards review', e:0, int:'Once', se:'Fall', d:'2026-11-30', w:'Pro', p:true, v:'Duval Roofing', st:'Not started', n:'New roof has none. Check where snow and ice would slide.' },
+    { id:'A15', t:3, c:'Structure and pests', i:'Look for new plaster cracks, stains or bulges', s:'Plaster crack check', e:12, int:'Annual', se:'Spring', d:'2027-04-30', w:'DIY', p:false, v:'', st:'Not started', n:'Downstairs is a mix of plaster and lath and drywall from the 2001 addition and 2026 repairs.' },
+    { id:'A16', t:3, c:'Foundation', i:'Check fieldstone pointing and chimney brick mortar', s:'Pointing + chimney mortar', e:12, int:'Annual', se:'Spring', d:'2027-04-30', w:'DIY', p:false, v:'', st:'Not started', n:'No deterioration visible now. Use binoculars for the chimney tops.' },
+    { id:'C01', t:4, c:'Exterior finish', i:'Walk the exterior for paint failure, caulk gaps and rot', s:'Paint + caulk walk', e:12, int:'Annual', se:'Spring', d:'2027-04-30', w:'DIY', p:false, v:'', st:'Not started', n:'White painted wood siding, repainted in 2024. No peeling or chalking now. Use lead-safe practices; do not sand or scrape until lead testing (S13) is done.' },
+    { id:'C02', t:4, c:'Landscape and site', i:'Irrigation spring startup and head check', s:'Irrigation startup', e:12, int:'Annual', se:'Spring', d:'2027-04-30', w:'DIY or pro', p:false, v:'Irrigation contractor', st:'Not started', n:'Well-fed system.' },
+    { id:'C03', t:4, c:'Landscape and site', i:'Check retaining walls and brick walkway for heave after thaw', s:'Retaining wall + walkway', e:12, int:'Annual', se:'Spring', d:'2027-04-30', w:'DIY', p:false, v:'', st:'Not started', n:'Stone retaining walls and brick walkway.' },
+    { id:'C04', t:4, c:'Landscape and site', i:'Asphalt driveway crack fill and sealcoat', s:'Driveway sealcoat', e:24, int:'Every 2 to 3 years', se:'Late spring', d:'2027-06-15', w:'DIY or pro', p:false, v:'', st:'Not started', n:'' },
+    { id:'C05', t:4, c:'Records', i:'Review this register and resolve items marked To confirm', s:'Review this register', e:3, int:'Quarterly', se:'Year-round', d:'2027-01-15', w:'DIY', p:false, v:'', st:'Not started', n:'' },
+    { id:'W16', t:2, c:'Plumbing', i:'Replace the two whole-house water filter cartridges on the main line', s:'Replace main water filters', e:6, int:'Every 6 months, to confirm', se:'Year-round', d:'2026-12-01', w:'DIY', p:false, v:'', st:'To confirm', n:'Two filters right off the main. Cartridge type and the maker\'s change interval are unknown; confirm them and adjust the interval. Write the change date on the housing.' },
+    { id:'C06', t:3, c:'Equipment', i:'Snowblower pre-season check: fuel or battery, shear pins, belts, spark plug and a test start', s:'Snowblower pre-season check', e:12, int:'Annual', se:'Fall', d:'2026-11-08', w:'DIY', p:false, v:'', st:'To confirm', n:'Make, model and fuel type to confirm. Do this before the first forecast storm.' },
+    { id:'C07', t:3, c:'Equipment', i:'Mower fall service: oil, blade, air filter and fuel treatment or battery storage', s:'Mower fall service', e:12, int:'Annual', se:'Fall', d:'2026-11-08', w:'DIY', p:false, v:'', st:'To confirm', n:'Make, model and fuel type to confirm. Winterize before storing.' }
+  ];
+
+  /* ---------- date helpers (local dates as YYYY-MM-DD) ---------- */
+  var p2 = function (n) { return String(n).padStart(2, '0'); };
+  var ymd = function (d) { return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()); };
+  var parse = function (s) { var a = s.split('-').map(Number); return new Date(a[0], a[1] - 1, a[2], 12); };
+  var addDays = function (s, n) { var d = parse(s); d.setDate(d.getDate() + n); return ymd(d); };
+  var addMonths = function (s, n) {
+    var d = parse(s), day = d.getDate();
+    d.setDate(1); d.setMonth(d.getMonth() + n);
+    var last = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+    d.setDate(Math.min(day, last));
+    return ymd(d);
+  };
+  var diff = function (a, b) { return Math.round((parse(a) - parse(b)) / 864e5); };
+  var fShort = function (s) { return parse(s).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }); };
+  var fFull = function (s) { return parse(s).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }); };
+  var fMD = function (s) { return parse(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); };
+  var esc = function (s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  };
+
+  var TODAY = ymd(new Date());
+  function rel(s) {
+    var d = diff(s, TODAY);
+    if (d === 0) return 'today';
+    if (d > 0) return d >= 60 ? 'in ' + Math.round(d / 30) + ' mo' : 'in ' + d + ' d';
+    return -d >= 60 ? Math.round(-d / 30) + ' mo late' : -d + ' d late';
+  }
+
+  /* ---------- state ---------- */
+  var S = {};        // per-task progress: { date, done, hist:[{on, prev}], note }
+  var CUSTOM = {};   // tasks added by the owner
+  var DB = null;
+  var F = { tiers: new Set([1, 2, 3, 4]), pro: false, q: '', done: false };
+  var now = new Date();
+  var V = { y: now.getFullYear(), m: now.getMonth() };
+  var sel = TODAY;
+  var expanded = null;
+  var pendingRender = false;
+  var WIDE = window.matchMedia('(min-width: 960px)');
+
+  function tasks() {
+    var all = BASE.concat(Object.keys(CUSTOM).map(function (k) { return CUSTOM[k]; }));
+    return all.map(function (b) {
+      var st = S[b.id] || {};
+      return Object.assign({}, b, {
+        date: ('date' in st) ? st.date : b.d,
+        done: !!st.done,
+        hist: st.hist || [],
+        note: st.note || ''
+      });
+    });
+  }
+  function pass(t) {
+    if (!F.tiers.has(t.t)) return false;
+    if (F.pro && !t.p) return false;
+    if (F.q) {
+      var hay = (t.i + ' ' + t.c + ' ' + t.id + ' ' + (t.n || '') + ' ' + (t.v || '')).toLowerCase();
+      if (hay.indexOf(F.q.toLowerCase()) < 0) return false;
+    }
+    return true;
+  }
+  function find(id) { return tasks().filter(function (t) { return t.id === id; })[0]; }
+
+  /* ---------- persistence ---------- */
+  var chain = {};
+  function setStatus(kind) {
+    var msg = {
+      boot: 'Loading saved progress',
+      db: 'Progress is saved with this page and shared with anyone who can edit it.',
+      local: 'Progress is saved in this browser only.',
+      none: 'Progress cannot be saved here. Changes last until you close the page.',
+      err: 'A change could not be saved. You may have view-only access.'
+    }[kind];
+    document.getElementById('status').textContent = msg;
+  }
+  var localOk = true;
+  function saveLocal() {
+    try { localStorage.setItem('hm.v1', JSON.stringify({ tasks: S, custom: CUSTOM })); setStatus('local'); }
+    catch (e) { localOk = false; setStatus('none'); }
+  }
+  function loadLocal() {
+    try {
+      var raw = localStorage.getItem('hm.v1');
+      if (raw) { var o = JSON.parse(raw); S = o.tasks || {}; CUSTOM = o.custom || {}; }
+    } catch (e) { localOk = false; }
+  }
+  function enqueue(path, fn) {
+    chain[path] = (chain[path] || Promise.resolve()).then(fn).then(function () { setStatus('db'); }, function () { setStatus('err'); });
+  }
+  function putTask(id) {
+    if (!DB) { saveLocal(); return; }
+    var data = JSON.parse(JSON.stringify(S[id]));
+    enqueue('tasks/' + id, function () { return DB.doc('tasks/' + id).set(data); });
+  }
+  function putCustom(id) {
+    if (!DB) { saveLocal(); return; }
+    var data = JSON.parse(JSON.stringify(CUSTOM[id]));
+    enqueue('custom/' + id, function () { return DB.doc('custom/' + id).set(data); });
+  }
+  function dropCustom(id) {
+    if (!DB) { saveLocal(); return; }
+    enqueue('custom/' + id, function () { return DB.doc('custom/' + id).delete(); });
+    enqueue('tasks/' + id, function () { return DB.doc('tasks/' + id).delete(); });
+  }
+
+  /* ---------- actions ---------- */
+  function cur(id) {
+    var st = S[id] || {};
+    return { date: st.date, done: !!st.done, hist: (st.hist || []).slice(), note: st.note || '' };
+  }
+  function commit(id, st) {
+    var o = {};
+    if (st.date !== undefined) o.date = st.date;
+    o.done = st.done; o.hist = st.hist; o.note = st.note;
+    S[id] = o;
+    putTask(id);
+    render();
+  }
+  function markDone(id, on) {
+    on = on || TODAY;
+    var t = find(id); if (!t || t.done) return;
+    var st = cur(id);
+    if (t.asn) { st.hist.push({ on: on }); }
+    else if (t.e > 0) {
+      var anchor = t.date || TODAY;
+      var next = addMonths(anchor, t.e), n = 0;
+      while (next <= TODAY && n < 400) { next = addMonths(next, t.e); n++; }
+      st.hist.push({ on: on, prev: t.date || null });
+      st.date = next;
+    } else {
+      st.hist.push({ on: on, prev: t.date || null });
+      st.done = true;
+    }
+    commit(id, st);
+  }
+  function undo(id) {
+    var st = cur(id);
+    var h = st.hist.pop(); if (!h) return;
+    if ('prev' in h) { st.date = h.prev; st.done = false; }
+    commit(id, st);
+  }
+  function resched(id, val) {
+    var st = cur(id);
+    st.date = val ? val : null;
+    commit(id, st);
+  }
+  function setNote(id, val) {
+    var st = cur(id);
+    if (st.note === val) return;
+    st.note = val;
+    commit(id, st);
+  }
+  function addTask(o) {
+    var id = 'X' + Date.now().toString(36).toUpperCase();
+    CUSTOM[id] = {
+      id: id, t: o.t, c: 'Custom', i: o.i, s: o.i.length > 28 ? o.i.slice(0, 27) + '…' : o.i,
+      e: o.e, int: o.e ? ({ 1: 'Monthly', 3: 'Quarterly', 6: 'Every 6 months', 12: 'Yearly' }[o.e] || '') : 'Once',
+      se: '', d: o.d || null, w: o.w, p: o.w === 'Pro', v: '', st: 'Not started', n: '', custom: true
+    };
+    putCustom(id);
+    if (o.d) { sel = o.d; var d = parse(o.d); V = { y: d.getFullYear(), m: d.getMonth() }; }
+    expanded = id;
+    sched();
+  }
+  function delCustom(id) {
+    delete CUSTOM[id]; delete S[id];
+    if (expanded === id) expanded = null;
+    dropCustom(id);
+    sched();
+  }
+
+  /* ---------- calendar events ---------- */
+  function events(from, to) {
+    var ev = [];
+    tasks().filter(pass).forEach(function (t) {
+      if (!t.done && t.date) {
+        if (t.date >= from && t.date <= to) ev.push({ t: t, date: t.date, kind: 'due', late: t.date < TODAY });
+        if (t.e > 0) {
+          for (var n = 1; n < 400; n++) {
+            var d = addMonths(t.date, t.e * n);
+            if (d > to) break;
+            if (d >= from) ev.push({ t: t, date: d, kind: 'proj' });
+          }
+        }
+      }
+      t.hist.forEach(function (h) { if (h.on >= from && h.on <= to) ev.push({ t: t, date: h.on, kind: 'done' }); });
+    });
+    return ev;
+  }
+  var ORDER = { due: 0, done: 1, proj: 2 };
+  function sortEv(a, b) { return ORDER[a.kind] - ORDER[b.kind] || a.t.t - b.t.t || a.t.id.localeCompare(b.t.id); }
+
+  /* ---------- rendering ---------- */
+  function renderLegend() {
+    document.getElementById('legend').innerHTML = [1, 2, 3, 4].map(function (k) {
+      return '<button type="button" class="lg" data-act="tier" data-t="' + k + '" style="--tc:var(--t' + k + ')" aria-pressed="' + F.tiers.has(k) + '"><i></i>' + TIERS[k] + '</button>';
+    }).join('');
+  }
+
+  function renderKpis() {
+    var open = tasks().filter(function (t) { return !t.done; });
+    var late = open.filter(function (t) { return t.date && t.date < TODAY; }).length;
+    var soon = open.filter(function (t) { return t.date && t.date >= TODAY && diff(t.date, TODAY) <= 30; }).length;
+    var pro = open.filter(function (t) { return t.p; }).length;
+    document.getElementById('kpis').innerHTML =
+      '<span class="' + (late ? 'late' : '') + '"><b>' + late + '</b>overdue</span>' +
+      '<span><b>' + soon + '</b>due in 30 days</span>' +
+      '<span><b>' + pro + '</b>need a licensed pro</span>';
+  }
+
+  function renderCal() {
+    document.getElementById('monthLabel').textContent = new Date(V.y, V.m, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    var first = new Date(V.y, V.m, 1, 12);
+    var start = new Date(first); start.setDate(1 - first.getDay());
+    var startS = ymd(start), endS = addDays(startS, 41);
+    var by = {};
+    events(startS, endS).forEach(function (e) { (by[e.date] = by[e.date] || []).push(e); });
+    var html = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(function (w) { return '<div class="wd">' + w + '</div>'; }).join('');
+    for (var i = 0; i < 42; i++) {
+      var ds = addDays(startS, i), d = parse(ds);
+      var list = (by[ds] || []).sort(sortEv);
+      var cls = 'day' + (d.getMonth() !== V.m ? ' other' : '') + (d.getDay() === 0 || d.getDay() === 6 ? ' we' : '') + (ds === sel ? ' sel' : '');
+      var chips = list.map(function (e, n) { return chip(e, n >= 3); }).join('');
+      var more = list.length > 3 ? '<button type="button" class="more" data-act="day" data-date="' + ds + '">+' + (list.length - 3) + ' more</button>' : '';
+      html += '<div class="' + cls + '" data-date="' + ds + '">' +
+        '<button type="button" class="dnum' + (ds === TODAY ? ' today' : '') + '" data-act="day" data-date="' + ds + '" aria-label="' + esc(fFull(ds)) + '">' + d.getDate() + '</button>' +
+        '<div class="chips">' + chips + more + '</div></div>';
+    }
+    document.getElementById('grid').innerHTML = html;
+  }
+  function chip(e, extra) {
+    var lbl = { due: 'Due', proj: 'Projected', done: 'Done' }[e.kind];
+    return '<button type="button" class="chip ' + e.kind + (extra ? ' x' : '') + (e.late ? ' late' : '') + (expanded === e.t.id ? ' on' : '') + '" style="--tc:var(--t' + e.t.t + ')" data-act="chip" data-id="' + e.t.id + '" data-date="' + e.date + '" title="' + esc(lbl + ': ' + e.t.i) + '"><span class="t">' + esc(e.t.s) + '</span></button>';
+  }
+
+  function renderDay() {
+    var ev = events(sel, sel).sort(sortEv);
+    var h = '<h3>' + esc(fFull(sel)) + '<span>' + ev.length + (ev.length === 1 ? ' item' : ' items') + '</span></h3>';
+    if (!ev.length) {
+      var nxt = tasks().filter(function (t) { return pass(t) && !t.done && t.date && t.date > sel; })
+        .sort(function (a, b) { return a.date.localeCompare(b.date) || a.t - b.t; })[0];
+      h += '<p class="empty">Nothing scheduled.' + (nxt ? ' <button type="button" data-act="day" data-date="' + nxt.date + '">Next: ' + esc(fShort(nxt.date)) + ', ' + esc(nxt.s) + '</button>' : '') + '</p>';
+    } else {
+      h += ev.map(function (e) {
+        var open = !WIDE.matches && expanded === e.t.id;
+        return '<div><button type="button" class="dprow" style="--tc:var(--t' + e.t.t + ')" data-act="dp" data-id="' + e.t.id + '"><i></i><span class="tt">' + esc(e.t.i) + '</span>' +
+          (e.t.p ? '<span class="badge pro">Pro</span>' : '') + '<span class="k">' + ({ due: e.late ? 'Overdue' : 'Due', proj: 'Projected', done: 'Done' }[e.kind]) + '</span></button>' +
+          (open ? detail(e.t, 'dp') : '') + '</div>';
+      }).join('');
+    }
+    document.getElementById('dayPanel').innerHTML = h;
+  }
+
+  function detail(t, ctx) {
+    var meta = [['Who', t.w], ['Vendor', t.v], ['Repeats', t.int], ['Season', t.se], ['Due', t.date ? fMD(t.date) : '']].filter(function (x) { return x[1]; });
+    var dl = meta.map(function (x) { return '<div><dt>' + x[0] + '</dt><dd>' + esc(x[1]) + '</dd></div>'; }).join('');
+    var hist = t.hist.slice().reverse().map(function (h) { return '<li>Done ' + esc(fMD(h.on)) + '</li>'; }).join('');
+    return '<div class="detail">' +
+      '<dl class="meta">' + dl + '</dl>' +
+      (t.n ? '<p class="notes">' + esc(t.n) + '</p>' : '') +
+      (t.l ? '<p class="last">Last done: ' + esc(t.l) + '</p>' : '') +
+      '<div class="actions">' +
+      (t.done ? '<span class="donetag">Completed</span>' : '<button type="button" class="btn primary" data-act="done" data-id="' + t.id + '">' + (t.asn ? 'Log a check' : 'Mark done') + '</button>') +
+      (t.hist.length ? '<button type="button" class="btn" data-act="undo" data-id="' + t.id + '">Undo last</button>' : '') +
+      (t.custom ? '<button type="button" class="btn danger" data-act="del" data-id="' + t.id + '">Delete</button>' : '') +
+      '<label class="resched" for="' + ctx + '-d-' + t.id + '">Due <input type="date" id="' + ctx + '-d-' + t.id + '" data-act="date" data-id="' + t.id + '" value="' + esc(t.date || '') + '"></label>' +
+      '</div>' +
+      '<label class="notelab" for="' + ctx + '-n-' + t.id + '">My notes</label>' +
+      '<textarea id="' + ctx + '-n-' + t.id + '" data-act="note" data-id="' + t.id + '" rows="2" placeholder="Visit date, quote, reading, what you found">' + esc(t.note) + '</textarea>' +
+      (hist ? '<ul class="hist">' + hist + '</ul>' : '') +
+      '</div>';
+  }
+
+  function row(t) {
+    var open = expanded === t.id;
+    var late = !t.done && t.date && t.date < TODAY;
+    var lastDone = t.hist.length ? t.hist[t.hist.length - 1].on : null;
+    var dateTxt = t.done ? 'Done ' + (lastDone ? fMD(lastDone) : '') : (t.date ? fShort(t.date) : (t.asn ? 'As needed' : 'No date'));
+    var relTxt = (!t.done && t.date) ? rel(t.date) : '';
+    return '<article class="task' + (open ? ' open' : '') + (t.done ? ' isdone' : '') + '" style="--tc:var(--t' + t.t + ')" id="task-' + t.id + '">' +
+      '<button type="button" class="thead" data-act="toggle" data-id="' + t.id + '" aria-expanded="' + open + '">' +
+      '<span class="tmain"><span class="ttitle">' + esc(t.i) + '</span><span class="tsub"><span class="tid">' + t.id + '</span><span>' + esc(t.c) + '</span>' +
+      (t.p ? '<span class="badge pro">Pro</span>' : '') + (t.st === 'To confirm' ? '<span class="badge confirm">To confirm</span>' : '') + '</span></span>' +
+      '<span class="tdate' + (late ? ' late' : '') + '"><span>' + esc(dateTxt) + '</span><span class="rel">' + esc(relTxt) + '</span></span></button>' +
+      (open ? detail(t, 'ls') : '') +
+      '</article>';
+  }
+
+  function renderList() {
+    var T = tasks().filter(pass);
+    var open = T.filter(function (t) { return !t.done; });
+    var cmp = function (a, b) { return (a.date || '9999').localeCompare(b.date || '9999') || a.t - b.t || a.id.localeCompare(b.id); };
+    var late = open.filter(function (t) { return t.date && t.date < TODAY; }).sort(cmp);
+    var soon = open.filter(function (t) { return t.date && t.date >= TODAY && diff(t.date, TODAY) <= 30; }).sort(cmp);
+    var later = open.filter(function (t) { return t.date && diff(t.date, TODAY) > 30; }).sort(cmp);
+    var none = open.filter(function (t) { return !t.date; }).sort(cmp);
+    var done = F.done ? T.filter(function (t) { return t.done; }).sort(cmp) : [];
+    var h = '';
+    function grp(name, arr, cls) {
+      if (!arr.length) return;
+      h += '<div class="grp ' + (cls || '') + '">' + name + '<b>' + arr.length + '</b></div>' + arr.map(row).join('');
+    }
+    grp('Overdue', late, 'late');
+    grp('Next 30 days', soon);
+    grp('Later', later);
+    grp('No date set', none);
+    grp('Completed', done);
+    if (!h) h = '<p class="empty" style="padding:14px">No tasks match these filters.</p>';
+    var list = document.getElementById('list');
+    var top = list.scrollTop;
+    list.innerHTML = h;
+    list.scrollTop = top;
+    document.getElementById('counts').textContent = open.length + ' open';
+  }
+
+  function render() {
+    TODAY = ymd(new Date());
+    renderLegend(); renderKpis(); renderCal(); renderDay(); renderList();
+    pendingRender = false;
+  }
+  function sched() {
+    var ae = document.activeElement;
+    if (ae && /^(TEXTAREA|INPUT)$/.test(ae.tagName) && (ae.closest('#list') || ae.closest('#dayPanel')) && ae.id !== 'q') { pendingRender = true; return; }
+    render();
+  }
+
+  function focusTask(id, date) {
+    expanded = (expanded === id && !date) ? null : id;
+    if (date) sel = date;
+    render();
+    if (expanded && WIDE.matches) {
+      var el = document.getElementById('task-' + id);
+      if (el) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+  }
+
+  /* ---------- events ---------- */
+  document.addEventListener('click', function (ev) {
+    var a = ev.target.closest('[data-act]');
+    if (a) {
+      var act = a.getAttribute('data-act'), id = a.getAttribute('data-id'), date = a.getAttribute('data-date');
+      if (act === 'toggle') { expanded = expanded === id ? null : id; render(); return; }
+      if (act === 'chip') { ev.stopPropagation(); focusTask(id, date); return; }
+      if (act === 'dp') { if (WIDE.matches) { focusTask(id, null); } else { expanded = expanded === id ? null : id; render(); } return; }
+      if (act === 'day') { ev.stopPropagation(); sel = date; var d = parse(date); V = { y: d.getFullYear(), m: d.getMonth() }; render(); return; }
+      if (act === 'done') { markDone(id); return; }
+      if (act === 'undo') { undo(id); return; }
+      if (act === 'del') { delCustom(id); return; }
+      if (act === 'tier') { var k = Number(a.getAttribute('data-t')); if (F.tiers.has(k)) F.tiers.delete(k); else F.tiers.add(k); render(); return; }
+    }
+    var cell = ev.target.closest('.day');
+    if (cell) { sel = cell.getAttribute('data-date'); render(); }
+  });
+  document.addEventListener('change', function (ev) {
+    var el = ev.target, act = el.getAttribute && el.getAttribute('data-act');
+    if (act === 'date') resched(el.getAttribute('data-id'), el.value);
+    else if (act === 'note') setNote(el.getAttribute('data-id'), el.value);
+  });
+  document.addEventListener('focusout', function () {
+    if (pendingRender) setTimeout(function () { if (pendingRender) sched(); }, 0);
+  });
+  document.getElementById('prev').addEventListener('click', function () { V = V.m === 0 ? { y: V.y - 1, m: 11 } : { y: V.y, m: V.m - 1 }; render(); });
+  document.getElementById('next').addEventListener('click', function () { V = V.m === 11 ? { y: V.y + 1, m: 0 } : { y: V.y, m: V.m + 1 }; render(); });
+  document.getElementById('todayBtn').addEventListener('click', function () { var n = new Date(); V = { y: n.getFullYear(), m: n.getMonth() }; sel = ymd(n); render(); });
+  document.getElementById('q').addEventListener('input', function (e) { F.q = e.target.value.trim(); render(); });
+  document.getElementById('proOnly').addEventListener('change', function (e) { F.pro = e.target.checked; render(); });
+  document.getElementById('showDone').addEventListener('change', function (e) { F.done = e.target.checked; render(); });
+  document.getElementById('addForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var title = document.getElementById('aTitle').value.trim();
+    if (!title) return;
+    addTask({
+      i: title,
+      d: document.getElementById('aDate').value,
+      t: Number(document.getElementById('aTier').value),
+      w: document.getElementById('aWho').value,
+      e: Number(document.getElementById('aEvery').value)
+    });
+    e.target.reset();
+  });
+  if (WIDE.addEventListener) WIDE.addEventListener('change', render);
+
+  /* ---------- backup, restore, calendar export ---------- */
+  function download(name, mime, text) {
+    var a = document.createElement('a');
+    var url = URL.createObjectURL(new Blob([text], { type: mime }));
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+  function exportJson() {
+    download('home-maintenance-backup-' + TODAY + '.json', 'application/json',
+      JSON.stringify({ app: 'home-maintenance', version: 1, saved: TODAY, tasks: S, custom: CUSTOM, sync: { calId: SYNC.calId, listId: SYNC.listId, map: SYNC.map }, inventory: inv.getState() }, null, 2));
+  }
+  function importJson(file) {
+    var r = new FileReader();
+    r.onload = function () {
+      try {
+        var o = JSON.parse(r.result);
+        if (!o || o.app !== 'home-maintenance' || typeof o.tasks !== 'object') throw new Error('bad file');
+        if (!window.confirm('Replace the progress in this browser with this backup?')) return;
+        S = o.tasks || {}; CUSTOM = o.custom || {};
+        if (o.sync) { SYNC.calId = o.sync.calId; SYNC.listId = o.sync.listId; SYNC.map = o.sync.map || {}; saveSync(); }
+        if (o.inventory) inv.setState(o.inventory);
+        saveLocal(); render();
+      } catch (e) { window.alert('That file is not a Home Maintenance backup.'); }
+    };
+    r.readAsText(file);
+  }
+  function icsEsc(s) {
+    return String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+  }
+  function icsFold(line) {
+    var out = [], bytes = 0, cur = '';
+    Array.from(line).forEach(function (ch) {
+      var n = unescape(encodeURIComponent(ch)).length;
+      if (bytes + n > 73) { out.push(cur); cur = ' ' + ch; bytes = 1 + n; }
+      else { cur += ch; bytes += n; }
+    });
+    out.push(cur);
+    return out.join('\r\n');
+  }
+  function buildIcs() {
+    var stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z');
+    var L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Home Maintenance//EN', 'CALSCALE:GREGORIAN', 'X-WR-CALNAME:Home Maintenance'];
+    tasks().forEach(function (t) {
+      if (t.done || !t.date) return;
+      var desc = [t.i];
+      if (t.v) desc.push('Vendor: ' + t.v);
+      if (t.p) desc.push('Licensed professional required');
+      if (t.n) desc.push(t.n);
+      if (t.note) desc.push('My notes: ' + t.note);
+      L.push('BEGIN:VEVENT',
+        'UID:' + t.id + '@home-maintenance',
+        'DTSTAMP:' + stamp,
+        'DTSTART;VALUE=DATE:' + t.date.replace(/-/g, ''),
+        'DTEND;VALUE=DATE:' + addDays(t.date, 1).replace(/-/g, ''),
+        'SUMMARY:' + icsEsc('[' + TIERS[t.t] + '] ' + (t.s || t.i)),
+        'DESCRIPTION:' + icsEsc(desc.join('\n')),
+        'CATEGORIES:' + icsEsc(t.c));
+      if (t.e > 0) L.push('RRULE:FREQ=MONTHLY;INTERVAL=' + t.e);
+      if (t.t <= 2) L.push('BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + icsEsc(t.s || t.i), 'TRIGGER:-PT15H', 'END:VALARM');
+      L.push('TRANSP:TRANSPARENT', 'END:VEVENT');
+    });
+    L.push('END:VCALENDAR');
+    return L.map(icsFold).join('\r\n') + '\r\n';
+  }
+  document.getElementById('exportJson').addEventListener('click', exportJson);
+  document.getElementById('exportIcs').addEventListener('click', function () {
+    download('home-maintenance-' + TODAY + '.ics', 'text/calendar', buildIcs());
+  });
+  document.getElementById('importJson').addEventListener('click', function () { document.getElementById('importFile').click(); });
+  document.getElementById('importFile').addEventListener('change', function (e) {
+    if (e.target.files[0]) importJson(e.target.files[0]);
+    e.target.value = '';
+  });
+
+  /* ---------- Google sync ---------- */
+  var SYNC = (function () { try { return JSON.parse(localStorage.getItem('hm.sync.v1')) || {}; } catch (e) { return {}; } })();
+  function saveSync() { try { localStorage.setItem('hm.sync.v1', JSON.stringify(SYNC)); } catch (e) {} }
+  var gEngine = HMSync.create({
+    getState: function () { return SYNC; },
+    save: saveSync,
+    tasks: tasks,
+    find: find,
+    tierName: function (t) { return TIERS[t]; },
+    applyDone: markDone,
+    applyDate: resched,
+    getToken: HMSync.tokenProvider(function () { return SYNC.clientId; }),
+    timeZone: (function () { try { return Intl.DateTimeFormat().resolvedOptions().timeZone; } catch (e) { return undefined; } })()
+  });
+  var gMsg = document.getElementById('gMsg');
+  function gSay(text, bad) { gMsg.textContent = text; gMsg.className = 'gs-msg' + (bad ? ' bad' : ''); }
+  function gGoneCount() {
+    var m = SYNC.map || {}, n = 0;
+    Object.keys(m).forEach(function (k) { if (m[k].evGone || m[k].tkGone) n++; });
+    return n;
+  }
+  function gIdle() {
+    document.getElementById('gReadd').hidden = gGoneCount() === 0;
+    if (!SYNC.clientId) { gSay('Not connected. Add your Google client ID under Google setup.'); return; }
+    gSay(SYNC.last ? 'Last synced ' + new Date(SYNC.last).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + '.' : 'Ready to sync.');
+  }
+  function gSummary(r) {
+    var bits = [r.created + ' added', r.updated + ' updated', r.removed + ' removed'];
+    var pulled = [];
+    if (r.pulledDone) pulled.push(r.pulledDone + ' marked done');
+    if (r.pulledDates) pulled.push(r.pulledDates + ' rescheduled');
+    var out = 'Synced. To Google: ' + bits.join(', ') + '.';
+    if (pulled.length) out += ' From Google: ' + pulled.join(', ') + '.';
+    if (r.gone) out += ' ' + r.gone + ' deleted in Google and not re-added.';
+    if (r.errors.length) out += ' ' + r.errors.length + ' failed (' + r.errors[0] + ').';
+    return out;
+  }
+  async function gRun(fn) {
+    var btn = document.getElementById('gSync');
+    btn.disabled = true; gSay('Syncing...');
+    try { var r = await fn(); document.getElementById('gReadd').hidden = gGoneCount() === 0; gSay(gSummary(r), r.errors.length > 0); }
+    catch (e) {
+      gSay('Sync failed: ' + (e.status === 401 ? 'Google sign-in expired. Press Sync again.' : e.message), true);
+    }
+    btn.disabled = false;
+  }
+  document.getElementById('gClient').value = SYNC.clientId || '';
+  document.getElementById('gSave').addEventListener('click', function () {
+    var v = document.getElementById('gClient').value.trim();
+    if (v && !/\.apps\.googleusercontent\.com$/.test(v)) { gSay('That does not look like a Google client ID. It ends in .apps.googleusercontent.com.', true); return; }
+    SYNC.clientId = v || undefined; saveSync();
+    if (v) HMSync.preload();
+    gIdle();
+  });
+  document.getElementById('gSync').addEventListener('click', function () {
+    if (!SYNC.clientId) { document.getElementById('gSetup').open = true; gSay('Add your Google client ID first.', true); return; }
+    gRun(function () { return gEngine.sync(); });
+  });
+  document.getElementById('gReadd').addEventListener('click', function () {
+    gEngine.readd();
+    gRun(function () { return gEngine.sync(); });
+  });
+  if (SYNC.clientId) HMSync.preload();
+  gIdle();
+
+  /* ---------- Home inventory and tabs ---------- */
+  var inv = HMInventory.create({
+    el: document.getElementById('invRoot'),
+    data: HM_INV_DATA,
+    state: (function () { try { return JSON.parse(localStorage.getItem('hm.inv.v1')) || {}; } catch (e) { return {}; } })(),
+    save: function (st) { try { localStorage.setItem('hm.inv.v1', JSON.stringify(st)); } catch (e) {} },
+    today: function () { return TODAY; },
+    getTask: function (id) {
+      var t = find(id);
+      return t ? { s: t.s, date: t.date, late: !t.done && !!t.date && t.date < TODAY } : null;
+    },
+    openTask: function (id) {
+      showView('cal');
+      var t = find(id);
+      if (t && t.date) { sel = t.date; var d = parse(t.date); V = { y: d.getFullYear(), m: d.getMonth() }; }
+      F.q = ''; document.getElementById('q').value = '';
+      F.pro = false; document.getElementById('proOnly').checked = false;
+      expanded = id; render();
+      var el = document.getElementById('task-' + id);
+      if (el && el.scrollIntoView) el.scrollIntoView({ block: 'center' });
+    },
+    download: download,
+    confirm: function (m) { return window.confirm(m); }
+  });
+  function showView(v) {
+    var isInv = v === 'inv';
+    document.getElementById('viewCal').hidden = isInv;
+    document.getElementById('viewInv').hidden = !isInv;
+    document.getElementById('tabCal').setAttribute('aria-selected', String(!isInv));
+    document.getElementById('tabInv').setAttribute('aria-selected', String(isInv));
+    document.getElementById('kpis').hidden = isInv;
+    try { history.replaceState(null, '', isInv ? '#inventory' : location.pathname + location.search); } catch (e) {}
+    if (isInv) inv.render();
+  }
+  document.getElementById('tabCal').addEventListener('click', function () { showView('cal'); });
+  document.getElementById('tabInv').addEventListener('click', function () { showView('inv'); });
+  if (location.hash === '#inventory') showView('inv');
+
+  /* ---------- boot ---------- */
+  setStatus('boot');
+  render();
+  (async function () {
+    var db = null;
+    try { if (window.claude && window.claude.use) db = await window.claude.use('db'); } catch (e) { db = null; }
+    if (db) {
+      DB = db;
+      setStatus('db');
+      db.collection('tasks').onSnapshot(function (snap) {
+        S = {};
+        snap.docs.forEach(function (d) { S[d.id] = d.data(); });
+        sched();
+      }, function () { setStatus('err'); });
+      db.collection('custom').onSnapshot(function (snap) {
+        CUSTOM = {};
+        snap.docs.forEach(function (d) { CUSTOM[d.id] = Object.assign({}, d.data(), { id: d.id }); });
+        sched();
+      }, function () { setStatus('err'); });
+    } else {
+      loadLocal();
+      setStatus(localOk ? 'local' : 'none');
+      render();
+    }
+  })();
+})();
+</script>
+
+</body></html>
