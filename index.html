@@ -377,12 +377,13 @@ details.add summary { cursor: pointer; font-family: var(--f-display); font-weigh
   </div>
 
   <p class="foot" id="status" role="status">Loading saved progress</p>
+  <p class="foot" id="build"></p>
 </div>
 
-<script src="sync.js"></script>
-<script src="inventory-data.js"></script>
-<script src="inventory-catalog.js"></script>
-<script src="inventory.js"></script>
+<script src="sync.js?v=3"></script>
+<script src="inventory-data.js?v=3"></script>
+<script src="inventory-catalog.js?v=3"></script>
+<script src="inventory.js?v=3"></script>
 <script>
 (function () {
   'use strict';
@@ -977,6 +978,9 @@ details.add summary { cursor: pointer; font-family: var(--f-display); font-weigh
   gIdle();
 
   /* ---------- Home inventory and tabs ---------- */
+  var catN = window.HM_INV_CATALOG ? window.HM_INV_CATALOG.types.length : 0;
+  var bEl = document.getElementById('build');
+  if (bEl) bEl.textContent = 'Build 2026-10-18.3 \u00b7 inventory picker: ' + (catN ? catN + ' types loaded' : 'NOT loaded (inventory-catalog.js missing or not at the site root)');
   var inv = HMInventory.create({
     el: document.getElementById('invRoot'),
     data: HM_INV_DATA, catalog: window.HM_INV_CATALOG,
