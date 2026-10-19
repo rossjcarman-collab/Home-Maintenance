@@ -254,6 +254,9 @@ details.add summary { cursor: pointer; font-family: var(--f-display); font-weigh
 .iadd { margin-top: 22px; border-top: 1px solid var(--line); padding-top: 10px; }
 .iadd summary { cursor: pointer; font-family: var(--f-display); font-weight: 600; font-size: 15px; letter-spacing: .07em; text-transform: uppercase; }
 .iadd form { margin-top: 10px; max-width: 640px; }
+.iadd-note { margin: 0; font-size: 12.5px; color: var(--ink-2); text-wrap: pretty; }
+.iadd-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.iform-add label[for="aiType"] { font-weight: 600; }
 .iabsent ul { margin: 0; padding-left: 18px; font-size: 13px; color: var(--ink-2); columns: 2 280px; }
 .ihint { font-size: 12px; color: var(--ink-2); max-width: 70ch; }
 .linkbtn { background: none; border: 0; padding: 0; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; font-size: 12px; }
@@ -378,6 +381,7 @@ details.add summary { cursor: pointer; font-family: var(--f-display); font-weigh
 
 <script src="sync.js"></script>
 <script src="inventory-data.js"></script>
+<script src="inventory-catalog.js"></script>
 <script src="inventory.js"></script>
 <script>
 (function () {
@@ -975,7 +979,7 @@ details.add summary { cursor: pointer; font-family: var(--f-display); font-weigh
   /* ---------- Home inventory and tabs ---------- */
   var inv = HMInventory.create({
     el: document.getElementById('invRoot'),
-    data: HM_INV_DATA,
+    data: HM_INV_DATA, catalog: window.HM_INV_CATALOG,
     state: (function () { try { return JSON.parse(localStorage.getItem('hm.inv.v1')) || {}; } catch (e) { return {}; } })(),
     save: function (st) { try { localStorage.setItem('hm.inv.v1', JSON.stringify(st)); } catch (e) {} },
     today: function () { return TODAY; },

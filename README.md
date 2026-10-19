@@ -18,7 +18,7 @@ Public repo note: the register includes house details (vendors, hazard-testing s
 - Reschedule, add notes, and add your own tasks from the task list.
 - **Progress is stored in the browser** (`localStorage`). **Back up progress** and **Restore backup** move it between devices, including the Google sync links.
 - **Sync with Google** keeps a dedicated Google Calendar and Google Tasks list in step with the app, both directions. One-time setup in [docs/GOOGLE-SETUP.md](docs/GOOGLE-SETUP.md).
-- **Home inventory tab:** appliances, HVAC, hot water, electrical, plumbing, envelope, smart home, site and equipment, with make, model, serial, install or manufacture date, expected life, warranty, vendor and last service. Each item shows its age against a typical life and flags replacement planning, links to its maintenance tasks, and lists open questions as "To confirm". Edit fields in place, add or remove items, and export a CSV for insurance or resale. Stored in the browser and included in the backup.
+- **Home inventory tab:** appliances, HVAC, hot water, electrical, plumbing, envelope, smart home, site and equipment, with make, model, serial, install or manufacture date, expected life, warranty, vendor and last service. Each item shows its age against a typical life and flags replacement planning, links to its maintenance tasks, and lists open questions as "To confirm". Edit fields in place, remove items, and export a CSV for insurance or resale. **Add item** is a guided picker: choose a type (about 50, such as refrigerator, water heater, snowblower), then a make from a popular-makes list, then a model line or your own model number. The type fills in category, typical life and linked maintenance tasks; anything not listed can be added as "Other". Stored in the browser and included in the backup.
 - **Export to Google Calendar (.ics)** is the no-setup alternative: a one-way download you import by hand.
 
 ## Files
@@ -28,6 +28,7 @@ Public repo note: the register includes house details (vendors, hazard-testing s
 | `index.html` | The app (markup, styles, script, seed register) |
 | `sync.js` | Google Calendar and Tasks sync engine |
 | `inventory-data.js` | Seed inventory (about 47 items) from the home survey |
+| `inventory-catalog.js` | Types, popular makes and model lines for the Add item picker |
 | `inventory.js` | Inventory logic (age, replacement status, CSV) and tab UI |
 | `data/register.json` | The seed register as data |
 | `docs/GOOGLE-SETUP.md` | One-time Google Cloud setup and sync rules |
@@ -47,7 +48,7 @@ Needs only Node. The sync tests check the logic against a mock of the Calendar a
 
 The register lives in the `BASE` array in `index.html`; `data/register.json` is a copy. Keep them in sync. Task `id` values are the keys for saved progress and for the Google links, so do not renumber them after you start using the app.
 
-The seed inventory lives only in `inventory-data.js`. Edits made in the app are stored separately and layered on top, so updating the seed later does not overwrite what you entered. Item IDs (for example `HW01`) are the keys for those edits, so keep them stable.
+The picker lists live in `inventory-catalog.js`. Model entries are product lines, not full part numbers, so copy the exact model from the data plate. The seed inventory lives only in `inventory-data.js`. Edits made in the app are stored separately and layered on top, so updating the seed later does not overwrite what you entered. Item IDs (for example `HW01`) are the keys for those edits, so keep them stable.
 
 ## Not built yet
 
